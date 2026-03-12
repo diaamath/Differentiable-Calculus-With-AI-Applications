@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 101 — Inverse Functions in AI</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .ksu-blue { color: #0073b7; }
+        .ksu-bg { background-color: #0073b7; }
+        .ksu-border { border-color: #0073b7; }
+        .math-font { font-family: 'Courier New', monospace; }
+        .arabic { direction: rtl; text-align: right; }
+        
+        /* Attractive Unified Blue Button Style */
+        .btn-primary {
+            background: linear-gradient(135deg, #0073b7 0%, #005a8e 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 115, 183, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 115, 183, 0.4);
+            filter: brightness(110%);
+        }
+        .btn-primary:active {
+            transform: scale(0.96);
+        }
+
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const ConceptBox = ({ en, ar }) => (
+            <div className="bg-blue-50 border-l-4 ksu-border p-4 rounded-r-lg mb-4 shadow-sm">
+                <p className="font-semibold text-slate-800 text-sm italic">Concept: <span className="font-normal not-italic">{en}</span></p>
+                <p className="font-semibold text-slate-800 mt-2 text-sm arabic">الفكرة: <span className="font-normal">{ar}</span></p>
+            </div>
+        );
+
+        const OutputDisplay = ({ content }) => (
+            <div className="mt-3 p-4 bg-slate-900 text-blue-400 rounded-lg math-font text-sm min-h-[50px] whitespace-pre-wrap shadow-inner border-l-4 ksu-border border-opacity-50">
+                {content || "> System Ready. Awaiting Inverse Mapping parameters..."}
+            </div>
+        );
+
+        const App = () => {
+            const [nfInput, setNfInput] = useState(2);
+            const [nfInverseInput, setNfInverseInput] = useState(7);
+            const [output, setOutput] = useState("");
+
+            const runNF = () => {
+                const z = parseFloat(nfInput);
+                const x_inv = parseFloat(nfInverseInput);
+
+                // Forward: x = 3z + 1 | Inverse: z = (x - 1) / 3
+                const x_forward = 3 * z + 1;
+                const z_reconstructed = (x_inv - 1) / 3;
+
+                const resultText = `Normalizing Flow Computation:
+---------------------------------
+Forward Mapping: x = f(z) = 3z + 1
+Inverse Mapping: z = f⁻¹(x) = (x - 1)/3
+
+[FORWARD PHASE]
+Input Latent z: ${z}
+Resulting Data x: ${x_forward.toFixed(3)}
+
+[INVERSE PHASE]
+Input Data x: ${x_inv}
+Reconstructed z: ${z_reconstructed.toFixed(3)}
+
+Conclusion:
+• Mapping is bi-directional
+• Input can be perfectly reconstructed
+• NF = Invertible Function in AI`;
+
+                setOutput(resultText);
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    {/* HEADER */}
+                    <header className="bg-white border-b-4 ksu-border px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-md sticky top-0 z-50">
+                        <img src="CFY_Logo.png" alt="KSU Logo" className="h-14 mb-4 md:mb-0 object-contain" />
+                        <div className="text-center md:text-right">
+                            <h1 className="text-xl md:text-2xl font-black ksu-blue uppercase tracking-tight">Section 1.3</h1>
+                            <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Inverse Functions in Normalizing Flows</p>
+                        </div>
+                    </header>
+
+                    <main className="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        
+                        {/* LEFT COLUMN */}
+                        <div className="space-y-8">
+                            <section className="bg-white p-2 rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+                                <img src="1.3_image.png" alt="Normalizing Flow Concept" className="w-full h-66 object-cover rounded-xl mb-4" />
+                                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="md:border-r md:pr-4">
+                                        <p className="text-sm text-slate-700 font-medium leading-relaxed italic">Normalizing Flows allow exact reconstruction of input data from latent variables.</p>
+                                    </div>
+                                    <div className="arabic">
+                                        <p className="text-sm text-slate-700 font-medium leading-relaxed">تسمح التدفقات الطبيعية بإعادة بناء البيانات المدخلة بدقة من المتغيرات الكامنة.</p>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section className="bg-white p-6 rounded-2xl shadow-xl border-t-8 ksu-border">
+                                <div className="flex items-center mb-6">
+                                    <div className="ksu-bg text-white px-3 py-1 rounded text-xs font-black mr-3 uppercase shadow-sm">Lab Idea</div>
+                                    <h2 className="text-lg font-black text-slate-800 uppercase tracking-tight">Explicit Inversion</h2>
+                                </div>
+                                <ConceptBox 
+                                    en="This lab demonstrates the explicit inverse function property." 
+                                    ar="يوضح هذا المعمل خاصية الدالة العكسية الصريحة." 
+                                />
+                                <div className="text-sm text-slate-600 space-y-2">
+                                    <p>• Change latent input <strong>z</strong> to see forward mapping.</p>
+                                    <p>• Change data input <strong>x</strong> to see reconstruction.</p>
+                                    <p className="arabic">● غير المدخلات لملاحظة التحويل العكسي المباشر.</p>
+                                </div>
+                            </section>
+                        </div>
+
+                        {/* RIGHT COLUMN */}
+                        <div className="space-y-8">
+                            <section className="bg-white p-6 rounded-2xl shadow-xl border-t-8 ksu-border transition-transform hover:scale-[1.01]">
+                                <div className="flex items-center mb-6">
+                                    <div className="ksu-bg text-white px-3 py-1 rounded text-xs font-black mr-3 uppercase shadow-sm">Ex 04</div>
+                                    <h2 className="text-lg font-black text-slate-800 uppercase tracking-tight">Invertible Functions</h2>
+                                </div>
+                                <ConceptBox 
+                                    en="x = f(z) = 3z + 1, with inverse z = f⁻¹(x) = (x - 1)/3" 
+                                    ar="مثال بسيط لتدفق طبيعي 1D والدالة العكسية له." 
+                                />
+                                
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Latent (z)</label>
+                                            <input type="number" step="0.1" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:ksu-border outline-none transition-all" value={nfInput} onChange={(e)=>setNfInput(e.target.value)} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Data (x)</label>
+                                            <input type="number" step="0.1" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:ksu-border outline-none transition-all" value={nfInverseInput} onChange={(e)=>setNfInverseInput(e.target.value)} />
+                                        </div>
+                                    </div>
+                                    
+                                    <button onClick={runNF} className="w-full btn-primary text-white font-black py-4 rounded-xl uppercase tracking-wider text-sm">
+                                        ⚙️ Apply Normalizing Flow
+                                    </button>
+                                    
+                                    <OutputDisplay content={output} />
+                                </div>
+                            </section>
+
+                            <section className="bg-white p-6 rounded-2xl shadow-xl border-t-8 ksu-border">
+                                <h2 className="text-lg font-black text-slate-800 uppercase tracking-tight mb-4 flex items-center">
+                                    <span className="ksu-bg text-white w-6 h-6 rounded-full flex items-center justify-center mr-2 text-[10px]">!</span>
+                                    Student Activity
+                                </h2>
+                                <p className="text-sm text-slate-600 mb-2 italic leading-relaxed">
+                                    Observe how the same input 'x' in the inverse function perfectly recovers the latent variable 'z' used in the forward function.
+                                </p>
+                                <p className="text-sm text-slate-600 arabic leading-relaxed">
+                                    لاحظ كيف أن نفس المدخل في الدالة العكسية يستعيد المتغير الكامن بدقة تامة.
+                                </p>
+                            </section>
+                        </div>
+                    </main>
+
+                    {/* FOOTER */}
+                    <footer className="bg-white border-t-4 ksu-border mt-12 py-12 text-center shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+                        <p className="font-black ksu-blue text-2xl tracking-tight mb-2 uppercase">Differentiable Calculus with AI Applications</p>
+                        <p className="text-slate-400 font-bold text-[11px] uppercase tracking-[0.4em]">Deanship of Common First Year – Basic Sciences Department</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

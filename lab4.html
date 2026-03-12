@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 101 — Transformers in AI</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .ksu-blue { color: #0073b7; }
+        .ksu-bg { background-color: #0073b7; }
+        .ksu-border { border-color: #0073b7; }
+        .math-font { font-family: 'Courier New', monospace; }
+        .arabic { direction: rtl; text-align: right; }
+        
+        /* Attractive Unified Blue Button Style */
+        .btn-primary {
+            background: linear-gradient(135deg, #0073b7 0%, #005a8e 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 115, 183, 0.3);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 115, 183, 0.4);
+            filter: brightness(110%);
+        }
+        .btn-primary:active {
+            transform: scale(0.96);
+        }
+
+        /* Black Result Box Style */
+        .result-black {
+            background-color: #0f172a;
+            border-left: 4px solid #0073b7;
+            color: #38bdf8;
+        }
+
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const ConceptBox = ({ en, ar }) => (
+            <div className="bg-blue-50 border-l-4 ksu-border p-4 rounded-r-lg mb-4 shadow-sm">
+                <p className="font-semibold text-slate-800 text-sm italic">Concept: <span className="font-normal not-italic">{en}</span></p>
+                <p className="font-semibold text-slate-800 mt-2 text-sm arabic">الفكرة: <span className="font-normal">{ar}</span></p>
+            </div>
+        );
+
+        const OutputDisplay = ({ content }) => (
+            <div className="mt-3 p-4 result-black rounded-lg math-font text-sm min-h-[50px] whitespace-pre-wrap shadow-inner overflow-x-auto">
+                {content || "> System Ready. Awaiting Position Parameters..."}
+            </div>
+        );
+
+        const App = () => {
+            const [pos, setPos] = useState(2);
+            const [dim, setDim] = useState(1);
+            const [output, setOutput] = useState("");
+
+            const computePE = () => {
+                const p = parseFloat(pos);
+                const i = parseFloat(dim);
+                const d_model = 512;
+
+                const angle = p / Math.pow(10000, (2 * i) / d_model);
+                const sinVal = Math.sin(angle);
+                const cosVal = Math.cos(angle);
+
+                const result = `Transformer Positional Encoding:
+---------------------------------
+Formula: θ = pos / 10000^(2i / d_model)
+
+[INPUTS]
+Token Position (pos): ${p}
+Embedding Index (i): ${i}
+
+[RESULTS]
+PE(pos, 2i)   [SIN] = ${sinVal.toFixed(6)}
+PE(pos, 2i+1) [COS] = ${cosVal.toFixed(6)}
+
+Conclusion:
+• Sequence order is mathematically injected.
+• Unique coordinates for every token.
+• Transformers = Context-aware sequences.`;
+
+                setOutput(result);
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    {/* HEADER */}
+                    <header className="bg-white border-b-4 ksu-border px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-md sticky top-0 z-50">
+                        <img src="CFY_Logo.png" alt="KSU Logo" className="h-14 mb-4 md:mb-0 object-contain" />
+                        <div className="text-center md:text-right">
+                            <h1 className="text-xl md:text-2xl font-black ksu-blue uppercase tracking-tight">Section 1.4</h1>
+                            <p className="text-slate-500 font-bold text-xs uppercase tracking-widest leading-tight">Transformers: History, Role, and Applications</p>
+                        </div>
+                    </header>
+
+                    <main className="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        
+                        {/* LEFT COLUMN */}
+                        <div className="space-y-8">
+                            <section className="bg-white p-2 rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+                                <img src="1.4_image.png" alt="Transformer Concept" className="w-full h-67 object-cover rounded-xl mb-4" />
+                                <div className="p-4 grid grid-cols-1 gap-4">
+                                    <p className="text-sm text-slate-700 font-medium italic leading-relaxed">
+                                        Introduced in 2017, Transformers use attention and positional encoding to revolutionize NLP.
+                                    </p>
+                                    <p className="text-sm text-slate-700 font-medium leading-relaxed arabic">
+                                        تم تقديم المحولات في عام 2017، وهي تستخدم الانتباه والتشفير الموضعي لإحداث ثورة في معالجة اللغات الطبيعية.
+                                    </p>
+                                </div>
+                            </section>
+
+                            <section className="bg-white p-6 rounded-2xl shadow-xl border-t-8 ksu-border">
+                                <div className="flex items-center mb-6">
+                                    <div className="ksu-bg text-white px-3 py-1 rounded text-xs font-black mr-3 uppercase shadow-sm italic leading-none">Insight</div>
+                                    <h2 className="text-lg font-black text-slate-800 uppercase tracking-tight">Positional Encoding</h2>
+                                </div>
+                                <ConceptBox 
+                                    en="Transformers use trigonometry to inject order into sequences." 
+                                    ar="تستخدم المحولات حساب المثلثات لإدخال الترتيب في التسلسلات." 
+                                />
+                                <div className="text-sm text-slate-600 space-y-2 border-l-2 border-slate-100 pl-4">
+                                    <p>PE(pos, 2i) = sin(θ)</p>
+                                    <p>PE(pos, 2i+1) = cos(θ)</p>
+                                </div>
+                            </section>
+                        </div>
+
+                        {/* RIGHT COLUMN */}
+                        <div className="space-y-8">
+                            <section className="bg-white p-6 rounded-2xl shadow-xl border-t-8 ksu-border transition-transform hover:scale-[1.01]">
+                                <div className="flex items-center mb-6">
+                                    <div className="ksu-bg text-white px-3 py-1 rounded text-xs font-black mr-3 uppercase shadow-sm italic">Engine</div>
+                                    <h2 className="text-lg font-black text-slate-800 uppercase tracking-tight">Order Computation</h2>
+                                </div>
+                                
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Token Pos</label>
+                                            <input type="number" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:ksu-border outline-none transition-all" value={pos} onChange={(e)=>setPos(e.target.value)} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dim Index (i)</label>
+                                            <input type="number" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:ksu-border outline-none transition-all" value={dim} onChange={(e)=>setDim(e.target.value)} />
+                                        </div>
+                                    </div>
+                                    
+                                    <button onClick={computePE} className="w-full btn-primary font-black py-4 rounded-xl uppercase tracking-wider text-sm">
+                                        ⚙️ Compute Positional Encoding
+                                    </button>
+                                    
+                                    <OutputDisplay content={output} />
+                                </div>
+                            </section>
+
+                            <section className="bg-white p-6 rounded-2xl shadow-xl border-t-8 ksu-border">
+                                <h2 className="text-lg font-black text-slate-800 uppercase tracking-tight mb-4">Student Activity</h2>
+                                <p className="text-sm text-slate-600 mb-4 italic leading-relaxed">
+                                    Vary the position and dimension to see how the sine/cosine patterns create a unique "spatial fingerprint" for every word in a sentence.
+                                </p>
+                                <p className="text-sm text-slate-600 arabic leading-relaxed">
+                                    غير الموضع والبعد لترى كيف تخلق أنماط الجيب وجيب التمام "بصمة مكانية" فريدة لكل كلمة في الجملة.
+                                </p>
+                            </section>
+                        </div>
+                    </main>
+
+                    {/* FOOTER */}
+                    <footer className="bg-white border-t-4 ksu-border mt-12 py-12 text-center shadow-lg">
+                        <p className="font-black ksu-blue text-2xl tracking-tight mb-2 uppercase">Differentiable Calculus with AI Applications</p>
+                        <p className="text-slate-400 font-bold text-[11px] uppercase tracking-[0.4em]">Deanship of Common First Year – Basic Sciences Department</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

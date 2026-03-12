@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 101 — Derivatives in Computer Vision</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .ksu-blue { color: #0073b7; }
+        .ksu-bg { background-color: #0073b7; }
+        .ksu-border { border-color: #0073b7; }
+        .math-font { font-family: 'Courier New', monospace; }
+        .arabic { direction: rtl; text-align: right; }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0073b7 0%, #005a8e 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 115, 183, 0.3);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 115, 183, 0.4);
+            filter: brightness(110%);
+        }
+        .btn-primary:active { transform: scale(0.96); }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+        .btn-reset:hover { filter: brightness(110%); transform: translateY(-1px); }
+
+        .canvas-black-container {
+            background-color: #0f172a;
+            border: 2px solid #1e293b;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        /* Student Activity Box Styling */
+        .activity-box {
+            background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+            border: 1px solid #c7d2fe;
+            border-left: 6px solid #1e40af;
+        }
+
+        .step-circle {
+            background: linear-gradient(135deg, #1e40af, #2563eb);
+            color: white;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        .note-orange {
+            color: #ea580c;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 8px;
+            display: flex;
+            align-items: center; gap: 4px;
+        }
+
+        canvas { border-radius: 8px; width: 100%; height: auto; }
+        video { display: none; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef } = React;
+
+        const App = () => {
+            const imageCanvasRef = useRef(null);
+            const edgeCanvasRef = useRef(null);
+            const videoRef = useRef(null);
+            const fileInputRef = useRef(null);
+            const [originalImageData, setOriginalImageData] = useState(null);
+
+            const handleFileUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const img = new Image();
+                img.onload = () => processImageSource(img);
+                img.src = URL.createObjectURL(file);
+            };
+
+            const captureCamera = async () => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    videoRef.current.srcObject = stream;
+                    videoRef.current.play();
+                    setTimeout(() => {
+                        processImageSource(videoRef.current);
+                        stream.getTracks().forEach(track => track.stop());
+                    }, 1000);
+                } catch (err) { alert("Camera access denied."); }
+            };
+
+            const processImageSource = (source) => {
+                const canvas = imageCanvasRef.current;
+                const ctx = canvas.getContext('2d');
+                const width = source.videoWidth || source.width;
+                const height = source.videoHeight || source.height;
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(source, 0, 0, width, height);
+                setOriginalImageData(ctx.getImageData(0, 0, width, height));
+            };
+
+            const applyEdgeDetection = (type) => {
+                if (!originalImageData) return alert("Please upload or capture an image first.");
+                const width = originalImageData.width;
+                const height = originalImageData.height;
+                const canvas = edgeCanvasRef.current;
+                const ctx = canvas.getContext('2d');
+                canvas.width = width;
+                canvas.height = height;
+                const output = ctx.createImageData(width, height);
+                const data = originalImageData.data;
+                const h = type === 'h' ? 2 : 1;
+
+                for (let y = 0; y < height; y++) {
+                    for (let x = h; x < width; x++) {
+                        const i = (y * width + x) * 4;
+                        const prev = (y * width + x - h) * 4;
+                        const diff = Math.abs((data[i] - data[prev]) / h);
+                        output.data[i] = diff; output.data[i+1] = diff; output.data[i+2] = diff; output.data[i+3] = 255;
+                    }
+                }
+                ctx.putImageData(output, 0, 0);
+            };
+
+            const resetSystem = () => {
+                setOriginalImageData(null);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+                const imgCtx = imageCanvasRef.current.getContext('2d');
+                const edgeCtx = edgeCanvasRef.current.getContext('2d');
+                imgCtx.clearRect(0, 0, imageCanvasRef.current.width, imageCanvasRef.current.height);
+                edgeCtx.clearRect(0, 0, edgeCanvasRef.current.width, edgeCanvasRef.current.height);
+                alert("System Reset Complete. Ready for new input.");
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    <header className="bg-white border-b-4 ksu-border px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-md sticky top-0 z-50">
+                        <img src="CFY_Logo.png" alt="KSU Logo" className="h-14 mb-4 md:mb-0 object-contain" />
+                        <div className="text-center md:text-right">
+                            <h1 className="text-xl md:text-2xl font-black ksu-blue uppercase tracking-tight">Section 2.1</h1>
+                            <p className="text-slate-500 font-bold text-xs uppercase tracking-widest leading-tight">Limits & Derivatives in Computer Vision</p>
+                        </div>
+                    </header>
+
+                    <main className="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div className="space-y-8">
+                            <section className="bg-white p-2 rounded-2xl shadow-lg border border-slate-200 overflow-hidden text-center">
+                                <img src="2.1_image.png" alt="Concept" className="w-full h-56 object-cover rounded-xl mb-4" />
+                                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-700 font-semibold italic">
+                                    <p>Limits and derivatives allow AI to detect edges by approximating continuous change.</p>
+                                    <p className="arabic">تمكّن النهايات والمشتقات أنظمة الذكاء الاصطناعي من اكتشاف الحواف.</p>
+                                </div>
+                            </section>
+
+                            {/* STUDENT ACTIVITY SECTION */}
+                            <section className="activity-box p-6 rounded-2xl shadow-xl">
+                                <h3 className="text-xl font-black text-blue-900 mb-6 uppercase tracking-wider">Student Activity</h3>
+                                
+                                <div className="space-y-6">
+                                    <div className="flex items-start gap-4">
+                                        <div className="step-circle w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-black">1</div>
+                                        <div className="text-sm">
+                                            <p className="font-bold text-slate-800">Upload or Capture Image</p>
+                                            <p className="arabic text-slate-600">قم برفع صورة أو استخدام الكاميرا الحية.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-4">
+                                        <div className="step-circle w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-black">2</div>
+                                        <div className="text-sm">
+                                            <p className="font-bold text-slate-800">Apply Edge Detection</p>
+                                            <p className="arabic text-slate-600">طبّق اكتشاف الحواف باستخدام المشتقات المتقطعة.</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-4">
+                                        <div className="step-circle w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-black">3</div>
+                                        <div className="text-sm">
+                                            <p className="font-bold text-slate-800">Reset & Experiment</p>
+                                            <p className="arabic text-slate-600">أعد تعيين النظام وجرب قيماً مختلفة للمتغير h.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <div className="space-y-8">
+                            <section className="bg-white p-6 rounded-2xl shadow-xl border-t-8 ksu-border">
+                                <video ref={videoRef} />
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <button onClick={() => fileInputRef.current.click()} className="btn-primary font-black py-4 rounded-xl text-xs uppercase tracking-widest">📁 Upload Image</button>
+                                        <button onClick={captureCamera} className="btn-primary font-black py-4 rounded-xl text-xs uppercase tracking-widest">📸 Live Camera</button>
+                                        <input ref={fileInputRef} type="file" onChange={handleFileUpload} hidden />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <button onClick={() => applyEdgeDetection('simple')} className="btn-primary font-black py-3 rounded-xl text-[10px] uppercase tracking-tighter font-black">f′(x) Simple</button>
+                                        <button onClick={() => applyEdgeDetection('h')} className="btn-primary font-black py-3 rounded-xl text-[10px] uppercase tracking-tighter font-black">f′(x) with h=2</button>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <div>
+                                            <h3 className="text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Original Input</h3>
+                                            <div className="canvas-black-container"><canvas ref={imageCanvasRef} /></div>
+                                        </div>
+                                        <div>
+                                            <h3 className="text-[10px] font-black uppercase text-blue-500 mb-2 tracking-widest">Gradient Result</h3>
+                                            <div className="canvas-black-container"><canvas ref={edgeCanvasRef} /></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-4 border-t border-slate-100 space-y-3">
+                                        <button onClick={resetSystem} className="w-full btn-reset font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg">🔄 Reset System for New Entry</button>
+                                        <div className="note-orange text-center mt-2 justify-center">● Observe how discrete derivatives approximate the mathematical concept of limits.</div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </main>
+
+                    <footer className="bg-white border-t-4 ksu-border mt-12 py-12 text-center shadow-lg">
+                        <p className="font-black ksu-blue text-2xl tracking-tight mb-2 uppercase">Differentiable Calculus with AI Applications</p>
+                        <p className="text-slate-400 font-bold text-[11px] uppercase tracking-[0.4em]">Deanship of Common First Year – Basic Sciences Department</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

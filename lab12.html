@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 101 — The Chain Rule in AI</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .ksu-blue { color: #0073b7; }
+        .ksu-bg { background-color: #0073b7; }
+        .ksu-border { border-color: #0073b7; }
+        .math-font { font-family: 'Courier New', monospace; }
+        .arabic { direction: rtl; text-align: right; }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0073b7 0%, #005a8e 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 115, 183, 0.3);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 115, 183, 0.4);
+            filter: brightness(110%);
+        }
+        .btn-primary:active { transform: scale(0.96); }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+        .btn-reset:hover { filter: brightness(110%); transform: translateY(-1px); }
+
+        .result-black {
+            background-color: #0f172a;
+            border-left: 4px solid #0073b7;
+            color: #38bdf8;
+        }
+
+        .activity-box {
+            background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+            border: 1px solid #c7d2fe;
+            border-left: 6px solid #1e40af;
+        }
+
+        .step-circle {
+            background: linear-gradient(135deg, #1e40af, #2563eb);
+            color: white;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        .note-orange {
+            color: #ea580c;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 8px;
+            display: flex;
+            align-items: center; gap: 4px;
+        }
+
+        input { outline: none; }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const App = () => {
+            const [inputs, setInputs] = useState({ x: 2, w1: 3, w2: 4, yTrue: 20 });
+            const [forwardLog, setForwardLog] = useState("");
+            const [backwardLog, setBackwardLog] = useState("");
+
+            const handleInputChange = (e) => {
+                setInputs({ ...inputs, [e.target.name]: parseFloat(e.target.value) || 0 });
+            };
+
+            const runForward = () => {
+                const { x, w1, w2, yTrue } = inputs;
+                const h = w1 * x;
+                const yHat = w2 * h;
+                const loss = Math.pow(yHat - yTrue, 2);
+
+                setForwardLog(`Forward Pass Execution:
+---------------------------
+Step 1: Hidden Layer
+h = W1 × x = ${w1} × ${x} = ${h}
+
+Step 2: Prediction
+ŷ = W2 × h = ${w2} × ${h} = ${yHat}
+
+Step 3: Loss Calculation
+L = (ŷ - y)² = (${yHat} - ${yTrue})²
+L = ${loss.toFixed(2)}`);
+            };
+
+            const runBackward = () => {
+                const { x, w1, w2, yTrue } = inputs;
+                const h = w1 * x;
+                const yHat = w2 * h;
+                const error = yHat - yTrue;
+
+                const dLoss_dW2 = 2 * error * h;
+                const dLoss_dW1 = 2 * error * (w2 * x);
+
+                setBackwardLog(`Backpropagation (Chain Rule):
+---------------------------
+dL/dW2 = 2(ŷ - y) * h
+= 2 * (${error}) * ${h}
+= ${dLoss_dW2.toFixed(2)}
+
+dL/dW1 = 2(ŷ - y) * (W2 * x)
+= 2 * (${error}) * (${w2 * x})
+= ${dLoss_dW1.toFixed(2)}
+
+Result: Gradients computed.`);
+            };
+
+            const randomize = () => {
+                setInputs({
+                    x: Number((Math.random() * 5 + 1).toFixed(1)),
+                    w1: Number((Math.random() * 4 + 1).toFixed(1)),
+                    w2: Number((Math.random() * 4 + 1).toFixed(1)),
+                    yTrue: Number((Math.random() * 20 + 5).toFixed(1))
+                });
+            };
+
+            const resetSystem = () => {
+                setInputs({ x: 2, w1: 3, w2: 4, yTrue: 20 });
+                setForwardLog("");
+                setBackwardLog("");
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    <header className="bg-white border-b-4 ksu-border px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-md sticky top-0 z-50">
+                        <img src="CFY_Logo.png" alt="KSU Logo" className="h-14 mb-4 md:mb-0 object-contain" />
+                        <div className="text-center md:text-right">
+                            <h1 className="text-xl md:text-2xl font-black ksu-blue uppercase tracking-tight">Section 3.4</h1>
+                            <p className="text-slate-500 font-bold text-xs uppercase tracking-widest leading-tight">The Chain Rule in Neural Networks</p>
+                        </div>
+                    </header>
+
+                    <main className="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div className="space-y-8">
+                            <section className="bg-white p-2 rounded-2xl shadow-lg border border-slate-200 overflow-hidden text-center">
+                                <img src="3.4_image.png" alt="Chain Rule Math" className="w-full h-40 object-cover rounded-xl mb-4" />
+                                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-700 font-semibold italic">
+                                    <p>The Chain Rule computes gradients in composite layers to update AI weights.</p>
+                                    <p className="arabic">تسمح قاعدة السلسلة بحساب التدرجات في الطبقات المركبة لتحديث أوزان الذكاء الاصطناعي.</p>
+                                </div>
+                            </section>
+
+                            <section className="activity-box p-6 rounded-2xl shadow-xl">
+                                <h3 className="text-xl font-black text-blue-900 mb-6 uppercase tracking-wider">Student Activity</h3>
+                                <div className="space-y-6">
+                                    <div className="flex items-start gap-4">
+                                        <div className="step-circle w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-black">1</div>
+                                        <div className="text-sm"><p className="font-bold text-slate-800">Forward Step</p><p className="arabic text-slate-600">حساب التنبؤ والخطأ الناتج عبر الطبقات.</p></div>
+                                    </div>
+                                    <div className="flex items-start gap-4">
+                                        <div className="step-circle w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-black">2</div>
+                                        <div className="text-sm"><p className="font-bold text-slate-800">Backward Step</p><p className="arabic text-slate-600">استخدام قاعدة السلسلة لاشتقاق التدرج.</p></div>
+                                    </div>
+                                    <div className="flex items-start gap-4">
+                                        <div className="step-circle w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-black">3</div>
+                                        <div className="text-sm"><p className="font-bold text-slate-800">Gradient Analysis</p><p className="arabic text-slate-600">لاحظ كيف يحدد المشتق اتجاه تحديث الأوزان.</p></div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <div className="space-y-8">
+                            <section className="bg-white p-6 rounded-2xl shadow-xl border-t-8 ksu-border">
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase">Input (x)</label>
+                                            <input name="x" type="number" className="w-full p-3 bg-slate-50 border-2 rounded-xl focus:ksu-border" value={inputs.x} onChange={handleInputChange} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase">Target (y)</label>
+                                            <input name="yTrue" type="number" className="w-full p-3 bg-slate-50 border-2 rounded-xl focus:ksu-border" value={inputs.yTrue} onChange={handleInputChange} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase">Weight W1</label>
+                                            <input name="w1" type="number" className="w-full p-3 bg-slate-50 border-2 rounded-xl focus:ksu-border" value={inputs.w1} onChange={handleInputChange} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase">Weight W2</label>
+                                            <input name="w2" type="number" className="w-full p-3 bg-slate-50 border-2 rounded-xl focus:ksu-border" value={inputs.w2} onChange={handleInputChange} />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <button onClick={runForward} className="btn-primary font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg">⏩ Forward Pass</button>
+                                        <button onClick={runBackward} className="btn-primary font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg">⏪ Backpropagation</button>
+                                    </div>
+
+                                    <button onClick={randomize} className="w-full bg-slate-100 text-slate-600 font-bold py-2 rounded-lg text-[10px] uppercase hover:bg-slate-200 transition-colors tracking-widest">🎲 Randomize Parameters</button>
+
+                                    <div className="space-y-4 pt-2">
+                                        <h3 className="text-[10px] font-black uppercase text-blue-500 tracking-widest">Neural Computation Log</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="result-black p-4 rounded-lg math-font text-[11px] min-h-[160px] whitespace-pre-wrap shadow-inner overflow-x-auto">
+                                                {forwardLog || "> Click Forward Pass to see prediction..."}
+                                            </div>
+                                            <div className="result-black p-4 rounded-lg math-font text-[11px] min-h-[160px] whitespace-pre-wrap shadow-inner overflow-x-auto">
+                                                {backwardLog || "> Click Backpropagation to see gradients..."}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-4 border-t border-slate-100 space-y-3">
+                                        <button onClick={resetSystem} className="w-full btn-reset font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg">🔄 Reset System</button>
+                                        <div className="note-orange text-center mt-2 justify-center">● AI Application: Derivatives via Chain Rule determine how weights are adjusted.</div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </main>
+
+                    <footer className="bg-white border-t-4 ksu-border mt-12 py-12 text-center shadow-lg">
+                        <p className="font-black ksu-blue text-2xl tracking-tight mb-2 uppercase">Differentiable Calculus with AI Applications</p>
+                        <p className="text-slate-400 font-bold text-[11px] uppercase tracking-[0.4em]">Deanship of Common First Year – Basic Sciences Department</p>
+                       
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 101 — Limits Involving Infinity in AI</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .ksu-blue { color: #0073b7; }
+        .ksu-bg { background-color: #0073b7; }
+        .ksu-border { border-color: #0073b7; }
+        .math-font { font-family: 'Courier New', monospace; }
+        .arabic { direction: rtl; text-align: right; }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0073b7 0%, #005a8e 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 115, 183, 0.3);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 115, 183, 0.4);
+            filter: brightness(110%);
+        }
+        .btn-primary:active { transform: scale(0.96); }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+        .btn-reset:hover { filter: brightness(110%); transform: translateY(-1px); }
+
+        .result-black {
+            background-color: #0f172a;
+            border-left: 4px solid #0073b7;
+            color: #38bdf8;
+        }
+
+        .activity-box {
+            background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+            border: 1px solid #c7d2fe;
+            border-left: 6px solid #1e40af;
+        }
+
+        .step-circle {
+            background: linear-gradient(135deg, #1e40af, #2563eb);
+            color: white;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        .note-orange {
+            color: #ea580c;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 8px;
+            display: flex;
+            align-items: center; gap: 4px;
+        }
+
+        input, select { outline: none; }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const App = () => {
+            const [xValue, setXValue] = useState(0);
+            const [funcType, setFuncType] = useState("sigmoid");
+            const [output, setOutput] = useState("");
+
+            const computeActivation = () => {
+                const x = parseFloat(xValue);
+                if (isNaN(x)) return alert("Please enter a valid number!");
+
+                let value, limitPos, limitNeg, funcName, formula;
+
+                if (funcType === "sigmoid") {
+                    value = 1 / (1 + Math.exp(-x));
+                    limitPos = "1";
+                    limitNeg = "0";
+                    funcName = "Sigmoid σ(x)";
+                    formula = "1 / (1 + e⁻ˣ)";
+                } else {
+                    value = Math.tanh(x);
+                    limitPos = "1";
+                    limitNeg = "-1";
+                    funcName = "Tanh(x)";
+                    formula = "(eˣ - e⁻ˣ) / (eˣ + e⁻ˣ)";
+                }
+
+                const resultText = `Activation Analysis Report:
+---------------------------
+Function: ${funcName}
+Formula:  ${formula}
+
+Input (x): ${x}
+Computed Output: ${value.toFixed(6)}
+
+Limit Behavior at Infinity:
+lim x → +∞ : ${limitPos}
+lim x → -∞ : ${limitNeg}
+
+AI Note: Output is saturating towards ${x > 0 ? limitPos : limitNeg}.`;
+
+                setOutput(resultText);
+            };
+
+            const resetSystem = () => {
+                setXValue(0);
+                setOutput("");
+                alert("System Reset Complete.");
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    <header className="bg-white border-b-4 ksu-border px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-md sticky top-0 z-50">
+                        <img src="CFY_Logo.png" alt="KSU Logo" className="h-14 mb-4 md:mb-0 object-contain" />
+                        <div className="text-center md:text-right">
+                            <h1 className="text-xl md:text-2xl font-black ksu-blue uppercase tracking-tight">Section 2.3</h1>
+                            <p className="text-slate-500 font-bold text-xs uppercase tracking-widest leading-tight">Limits Involving Infinity in AI</p>
+                        </div>
+                    </header>
+
+                    <main className="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* LEFT COLUMN */}
+                        <div className="space-y-8">
+                            <section className="bg-white p-2 rounded-2xl shadow-lg border border-slate-200 overflow-hidden text-center">
+                                <img src="2.3_image.png" alt="Activation saturation" className="w-full h-65 object-cover rounded-xl mb-4" />
+                                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-700 font-semibold italic">
+                                    <p>Limits at infinity explain how AI models behave when inputs become extremely large.</p>
+                                    <p className="arabic">توضح النهايات عند اللانهاية كيفية تصرف نماذج الذكاء الاصطناعي عندما تصبح المدخلات كبيرة جداً.</p>
+                                </div>
+                            </section>
+
+                            <section className="activity-box p-6 rounded-2xl shadow-xl">
+                                <h3 className="text-xl font-black text-blue-900 mb-6 uppercase tracking-wider">Student Activity</h3>
+                                <div className="space-y-6">
+                                    <div className="flex items-start gap-4">
+                                        <div className="step-circle w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-black">1</div>
+                                        <div className="text-sm">
+                                            <p className="font-bold text-slate-800">Select Function</p>
+                                            <p className="arabic text-slate-600">اختر دالة التنشيط (Sigmoid أو Tanh).</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-4">
+                                        <div className="step-circle w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-black">2</div>
+                                        <div className="text-sm">
+                                            <p className="font-bold text-slate-800">Input Large Values</p>
+                                            <p className="arabic text-slate-600">أدخل قيم كبيرة (مثل 10 أو 100) لملاحظة التشبع.</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-start gap-4">
+                                        <div className="step-circle w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-black">3</div>
+                                        <div className="text-sm">
+                                            <p className="font-bold text-slate-800">Verify Limits</p>
+                                            <p className="arabic text-slate-600">تحقق من اقتراب الناتج من النهايات النظرية.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        {/* RIGHT COLUMN */}
+                        <div className="space-y-8">
+                            <section className="bg-white p-6 rounded-2xl shadow-xl border-t-8 ksu-border">
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Input Value (x)</label>
+                                            <input 
+                                                type="number" 
+                                                className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:ksu-border transition-all shadow-inner" 
+                                                value={xValue} 
+                                                onChange={(e)=>setXValue(e.target.value)} 
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Function</label>
+                                            <select 
+                                                className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:ksu-border transition-all shadow-inner font-bold text-slate-700"
+                                                value={funcType}
+                                                onChange={(e)=>setFuncType(e.target.value)}
+                                            >
+                                                <option value="sigmoid">Sigmoid (σ)</option>
+                                                <option value="tanh">Tanh</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <button onClick={computeActivation} className="w-full btn-primary font-black py-4 rounded-xl uppercase tracking-widest text-sm shadow-lg">
+                                        ⚙️ Compute Limit Behavior
+                                    </button>
+
+                                    <div>
+                                        <h3 className="text-[10px] font-black uppercase text-blue-500 mb-2 tracking-widest">Function Output Log</h3>
+                                        <div className="result-black p-4 rounded-lg math-font text-sm min-h-[160px] whitespace-pre-wrap shadow-inner overflow-x-auto leading-relaxed">
+                                            {output || "> System initialized. Enter x to analyze saturation limits..."}
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-4 border-t border-slate-100 space-y-3">
+                                        <button onClick={resetSystem} className="w-full btn-reset font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg">🔄 Reset System for New Entry</button>
+                                        <div className="note-orange text-center mt-2 justify-center">● Understanding these limits explains why AI training slows down near saturation.</div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </main>
+
+                    <footer className="bg-white border-t-4 ksu-border mt-12 py-12 text-center shadow-lg">
+                        <p className="font-black ksu-blue text-2xl tracking-tight mb-2 uppercase">Differentiable Calculus with AI Applications</p>
+                        <p className="text-slate-400 font-bold text-[11px] uppercase tracking-[0.4em]">Deanship of Common First Year – Basic Sciences Department</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
