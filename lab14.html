@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 101 — Optimization in Self-Driving Cars</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .ksu-blue { color: #0073b7; }
+        .ksu-bg { background-color: #0073b7; }
+        .ksu-border { border-color: #0073b7; }
+        .math-font { font-family: 'Courier New', monospace; }
+        .arabic { direction: rtl; text-align: right; }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0073b7 0%, #005a8e 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 115, 183, 0.3);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 115, 183, 0.4);
+            filter: brightness(110%);
+        }
+        .btn-primary:active { transform: scale(0.96); }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+        .btn-reset:hover { filter: brightness(110%); transform: translateY(-1px); }
+
+        .result-black {
+            background-color: #0f172a;
+            border-left: 4px solid #0073b7;
+            color: #38bdf8;
+        }
+
+        .activity-box {
+            background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+            border: 1px solid #c7d2fe;
+            border-left: 6px solid #1e40af;
+        }
+
+        .step-circle {
+            background: linear-gradient(135deg, #1e40af, #2563eb);
+            color: white;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        .note-orange {
+            color: #ea580c;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 8px;
+            display: flex;
+            align-items: center; gap: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const App = () => {
+            const [metrics, setMetrics] = useState({ safety: 0, collision: 0 });
+            const [simLog, setSimLog] = useState("");
+            const [aiLog, setAiLog] = useState("");
+
+            const startSimulation = () => {
+                const s = Math.random() * 0.5 + 0.5; // 0.5 - 1.0
+                const c = Math.random() * 0.5;       // 0.0 - 0.5
+                setMetrics({ safety: s, collision: c });
+                setSimLog(`Simulation Status: LIVE
+---------------------------
+Safety Score: ${s.toFixed(2)}
+Collision Risk: ${c.toFixed(2)}
+Sensor Status: Active`);
+            };
+
+            const computeOptimization = () => {
+                if (metrics.safety === 0 && metrics.collision === 0) {
+                    return alert("Please start simulation first.");
+                }
+                const loss = 1 - metrics.safety + metrics.collision;
+                let observation = metrics.safety > 0.7 
+                    ? "Safety Increasing (f'(x) > 0)\nRisk Decreasing (f'(x) < 0)" 
+                    : "Optimizing weights (Searching for Minimum)...";
+
+                setAiLog(`AI Optimization Report:
+---------------------------
+Loss = 1 - s + c
+Loss = 1 - ${metrics.safety.toFixed(2)} + ${metrics.collision.toFixed(2)}
+Total Loss: ${loss.toFixed(3)}
+
+Analysis:
+${observation}
+
+Goal: Minimize Loss for autonomous driving safety.`);
+            };
+
+            const generateRandom = () => {
+                const s = Math.random();
+                const c = Math.random() * 0.5;
+                setMetrics({ safety: s, collision: c });
+                setSimLog(`Scenario: RANDOM TEST
+---------------------------
+Safety Score: ${s.toFixed(2)}
+Collision Risk: ${c.toFixed(2)}`);
+            };
+
+            const showRule = () => {
+                alert("Optimization in AI:\n\nWe aim to find the minimum of the loss function.\n\nIn Autonomous Vehicles:\n- We want safety to increase (positive derivative).\n- We want collision probability to decrease (negative derivative).");
+            };
+
+            const resetSystem = () => {
+                setMetrics({ safety: 0, collision: 0 });
+                setSimLog("");
+                setAiLog("");
+                alert("Driving System Reset.");
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    <header className="bg-white border-b-4 ksu-border px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-md sticky top-0 z-50">
+                        <img src="CFY_Logo.png" alt="KSU Logo" className="h-14 mb-4 md:mb-0 object-contain" />
+                        <div className="text-center md:text-right">
+                            <h1 className="text-xl md:text-2xl font-black ksu-blue uppercase tracking-tight">Section 4.5</h1>
+                            <p className="text-slate-500 font-bold text-xs uppercase tracking-widest leading-tight">Optimization in Autonomous AI</p>
+                        </div>
+                    </header>
+
+                    <main className="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* LEFT COLUMN */}
+                        <div className="space-y-8">
+                            <section className="bg-white p-2 rounded-2xl shadow-lg border border-slate-200 overflow-hidden text-center">
+                                <img src="4.5_image.png" alt="Self Driving AI" className="w-full h-56 object-cover rounded-xl mb-4" />
+                                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-slate-700 font-semibold italic">
+                                    <p>Optimization allows self-driving cars to adjust parameters in real-time to maximize passenger safety.</p>
+                                    <p className="arabic">يسمح التحسين للسيارات ذاتية القيادة بضبط المعايير في الوقت الفعلي لزيادة سلامة الركاب.</p>
+                                </div>
+                            </section>
+
+                            <section className="activity-box p-6 rounded-2xl shadow-xl">
+                                <h3 className="text-xl font-black text-blue-900 mb-6 uppercase tracking-wider">AI Lab Procedure</h3>
+                                <div className="space-y-6">
+                                    <div className="flex items-start gap-4">
+                                        <div className="step-circle w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-black">1</div>
+                                        <div className="text-sm"><p className="font-bold text-slate-800">Start Simulation</p><p className="arabic text-slate-600">ابدأ المحاكاة لإنشاء بيانات القيادة.</p></div>
+                                    </div>
+                                    <div className="flex items-start gap-4">
+                                        <div className="step-circle w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-black">2</div>
+                                        <div className="text-sm"><p className="font-bold text-slate-800">Compute AI Metrics</p><p className="arabic text-slate-600">احسب الخسارة بناءً على معايير السلامة والمخاطر.</p></div>
+                                    </div>
+                                    <div className="flex items-start gap-4">
+                                        <div className="step-circle w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center font-black">3</div>
+                                        <div className="text-sm"><p className="font-bold text-slate-800">Analyze Performance</p><p className="arabic text-slate-600">لاحظ كيف يتحسن النموذج بالوصول للنهاية الصغرى.</p></div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        {/* RIGHT COLUMN */}
+                        <div className="space-y-8">
+                            <section className="bg-white p-6 rounded-2xl shadow-xl border-t-8 ksu-border">
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <button onClick={startSimulation} className="btn-primary font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg">🚗 Start Simulation</button>
+                                        <button onClick={computeOptimization} className="btn-primary font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg">🧠 Compute Loss</button>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <button onClick={generateRandom} className="bg-slate-100 text-slate-600 font-bold py-3 rounded-xl text-[10px] uppercase hover:bg-slate-200 transition-colors tracking-widest">🎲 Random Scenario</button>
+                                        <button onClick={showRule} className="bg-slate-100 text-slate-600 font-bold py-3 rounded-xl text-[10px] uppercase hover:bg-slate-200 transition-colors tracking-widest">📘 Logic Rule</button>
+                                    </div>
+
+                                    <div className="space-y-4 pt-2">
+                                        <h3 className="text-[10px] font-black uppercase text-blue-500 tracking-widest">Autonomous Vehicle Output</h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="result-black p-4 rounded-lg math-font text-[11px] min-h-[160px] whitespace-pre-wrap shadow-inner overflow-x-auto">
+                                                {simLog || "> System idle. Waiting for engine start..."}
+                                            </div>
+                                            <div className="result-black p-4 rounded-lg math-font text-[11px] min-h-[160px] whitespace-pre-wrap shadow-inner overflow-x-auto border-blue-400">
+                                                {aiLog || "> Optimization analysis will appear here..."}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-4 border-t border-slate-100 space-y-3">
+                                        <button onClick={resetSystem} className="w-full btn-reset font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-lg">🔄 Reset System</button>
+                                        <div className="note-orange text-center mt-2 justify-center italic">● Calculus Insight: Minimizing loss ensures the car prioritizes safety above all else.</div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </main>
+
+                    <footer className="bg-white border-t-4 ksu-border mt-12 py-12 text-center shadow-lg">
+                        <p className="font-black ksu-blue text-2xl tracking-tight mb-2 uppercase">Differentiable Calculus with AI Applications</p>
+                        <p className="text-slate-400 font-bold text-[11px] uppercase tracking-[0.4em]">Deanship of Common First Year – Basic Sciences Department</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
