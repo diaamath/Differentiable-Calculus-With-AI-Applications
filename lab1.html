@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math 101 — Sets & Inequalities in AI</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .ksu-blue { color: #0073b7; }
+        .ksu-bg { background-color: #0073b7; }
+        .ksu-border { border-color: #0073b7; }
+        .math-font { font-family: 'Courier New', monospace; }
+        .arabic { direction: rtl; text-align: right; }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0073b7 0%, #005a8e 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 115, 183, 0.3);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 115, 183, 0.4);
+            filter: brightness(110%);
+        }
+        .btn-primary:active { transform: scale(0.96); }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            transition: all 0.3s ease;
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+        .btn-reset:hover { filter: brightness(110%); transform: translateY(-1px); }
+
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const ConceptBox = ({ en, ar }) => (
+            <div className="bg-blue-50 border-l-4 ksu-border p-4 rounded-r-lg mb-4 shadow-sm">
+                <p className="font-semibold text-slate-800 text-sm italic">Concept: <span className="font-normal not-italic">{en}</span></p>
+                <p className="font-semibold text-slate-800 mt-2 text-sm arabic">الفكرة: <span className="font-normal">{ar}</span></p>
+            </div>
+        );
+
+        const OutputDisplay = ({ content }) => (
+            <div className="mt-3 p-4 bg-slate-900 text-blue-400 rounded-lg math-font text-sm min-h-[50px] whitespace-pre-wrap shadow-inner border-l-4 ksu-border border-opacity-50">
+                {content || "> System Ready..."}
+            </div>
+        );
+
+        const App = () => {
+            const [tokenId, setTokenId] = useState(421);
+            const [out1, setOut1] = useState("");
+            const [prob, setProb] = useState(0.65);
+            const [out2, setOut2] = useState("");
+            const [medProb, setMedProb] = useState(0.75);
+            const [medAge, setMedAge] = useState(62);
+            const [out3, setOut3] = useState("");
+
+            const resetAll = () => {
+                setTokenId(0); setOut1("");
+                setProb(0); setOut2("");
+                setMedProb(0); setMedAge(0); setOut3("");
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    <header className="bg-white border-b-4 ksu-border px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-md sticky top-0 z-50">
+                        <img src="CFY_Logo.png" alt="KSU Logo" className="h-14 mb-4 md:mb-0 object-contain" />
+                        <div className="text-center md:text-right">
+                            <h1 className="text-xl md:text-2xl font-black ksu-blue uppercase tracking-tight">Section 1.1</h1>
+                            <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Sets of Numbers & Inequalities in AI</p>
+                        </div>
+                    </header>
+
+                    <main className="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div className="space-y-8">
+                            <section className="bg-white p-2 rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+                                <img src="1.1_image.png" alt="Lab Concept" className="w-full h-65 object-cover rounded-xl mb-4" />
+                                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="md:border-r md:pr-4">
+                                        <p className="text-sm text-slate-700 font-medium leading-relaxed italic">Sets and inequalities help AI organize data and make decisions.</p>
+                                    </div>
+                                    <div className="arabic">
+                                        <p className="text-sm text-slate-700 font-medium leading-relaxed">تساعد المجموعات والمتباينات الذكاء الاصطناعي على تنظيم البيانات واتخاذ القرار.</p>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section className="bg-white p-6 rounded-2xl shadow-xl border-t-8 ksu-border">
+                                <div className="flex items-center mb-6">
+                                    <div className="ksu-bg text-white px-3 py-1 rounded text-xs font-black mr-3 uppercase shadow-sm">Ex 01</div>
+                                    <h2 className="text-lg font-black text-slate-800 uppercase tracking-tight">Integer Sets (Tokens)</h2>
+                                </div>
+                                <ConceptBox en="Tokens in AI belong to the integer set ℤ." ar="تنتمي الرموز في الذكاء الاصطناعي إلى مجموعة الأعداد الصحيحة ℤ." />
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Input: Token ID</label>
+                                    <input type="number" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:ksu-border outline-none transition-all" value={tokenId} onChange={(e)=>setTokenId(e.target.value)} />
+                                    <button onClick={() => setOut1(Number.isInteger(parseFloat(tokenId)) && tokenId >= 0 ? `SUCCESS: Token ${tokenId} ∈ ℤ\nStatus: Valid Data Point` : `ERROR: Token ${tokenId} ∉ ℤ\nStatus: Invalid Index`)} 
+                                            className="w-full btn-primary font-black py-4 rounded-xl uppercase tracking-wider text-sm">
+                                        VALIDATE INTEGER SET
+                                    </button>
+                                    <OutputDisplay content={out1} />
+                                </div>
+                            </section>
+                        </div>
+
+                        <div className="space-y-8">
+                            <section className="bg-white p-6 rounded-2xl shadow-xl border-t-8 ksu-border">
+                                <div className="flex items-center mb-6">
+                                    <div className="ksu-bg text-white px-3 py-1 rounded text-xs font-black mr-3 uppercase shadow-sm">Ex 02</div>
+                                    <h2 className="text-lg font-black text-slate-800 uppercase tracking-tight">Decision Inequalities</h2>
+                                </div>
+                                <ConceptBox en="AI decisions use inequalities such as ≥ and ≤." ar="يستخدم الذكاء الاصطناعي المتباينات لاتخاذ القرار." />
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Input: Probability (p)</label>
+                                    <input type="number" step="0.01" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:ksu-border outline-none transition-all" value={prob} onChange={(e)=>setProb(e.target.value)} />
+                                    <button onClick={() => setOut2(prob >= 0.5 ? `THRESHOLD: p = ${prob} ≥ 0.5\nDECISION: POSITIVE CLASS` : `THRESHOLD: p = ${prob} < 0.5\nDECISION: NEGATIVE CLASS`)} 
+                                            className="w-full btn-primary font-black py-4 rounded-xl uppercase tracking-wider text-sm">
+                                        APPLY INEQUALITY
+                                    </button>
+                                    <OutputDisplay content={out2} />
+                                </div>
+                            </section>
+
+                            <section className="bg-white p-6 rounded-2xl shadow-xl border-t-8 ksu-border">
+                                <div className="flex items-center mb-6">
+                                    <div className="ksu-bg text-white px-3 py-1 rounded text-xs font-black mr-3 uppercase shadow-sm">Ex 03</div>
+                                    <h2 className="text-lg font-black text-slate-800 uppercase tracking-tight">Medical Intersection (∩)</h2>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4 mb-4">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase">Risk (p)</label>
+                                        <input type="number" step="0.01" className="w-full p-3 bg-slate-50 border rounded-lg outline-none focus:ksu-border font-bold" value={medProb} onChange={(e)=>setMedProb(e.target.value)} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase">Patient Age</label>
+                                        <input type="number" className="w-full p-3 bg-slate-50 border rounded-lg outline-none focus:ksu-border font-bold" value={medAge} onChange={(e)=>setMedAge(e.target.value)} />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <button onClick={() => {
+                                        if(medProb >= 0.7 && medAge >= 60) setOut3("SET INTERSECTION: High Risk ∩ Age ≥ 60\nACTION: URGENT MEDICAL CARE");
+                                        else if(medProb >= 0.7) setOut3("SET MEMBERSHIP: High Risk Set\nACTION: Clinical Follow-up");
+                                        else setOut3("SET MEMBERSHIP: Low Risk Set\nACTION: Routine Monitor");
+                                    }} className="btn-primary text-white font-black py-4 rounded-xl uppercase tracking-wider text-xs">
+                                        RUN ANALYSIS
+                                    </button>
+                                    <button onClick={resetAll} className="btn-reset font-black py-4 rounded-xl uppercase tracking-wider text-xs shadow-lg">
+                                        🔄 RESET ALL
+                                    </button>
+                                </div>
+                                <OutputDisplay content={out3} />
+                            </section>
+                        </div>
+                    </main>
+
+                    <footer className="bg-white border-t-4 ksu-border mt-12 py-12 text-center shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+                        <p className="font-black ksu-blue text-2xl tracking-tight mb-2 uppercase">Differentiable Calculus with AI Applications</p>
+                        <p className="text-slate-400 font-bold text-[11px] uppercase tracking-[0.4em]">Deanship of Common First Year – Basic Sciences Department</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
