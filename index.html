@@ -10,13 +10,40 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
         .ksu-blue { color: #0073b7; }
         .ksu-bg { background-color: #0073b7; }
         .ksu-border { border-color: #0073b7; }
-        .lab-card { transition: all 0.3s ease; border: 1px solid #e2e8f0; }
-        .lab-card:hover { transform: translateY(-5px); border-color: #0073b7; box-shadow: 0 10px 20px rgba(0,115,183,0.1); }
+        .ksu-gold { color: #b2935b; }
+        
+        /* Premium Gradient Button */
+        .btn-login {
+            background: linear-gradient(135deg, #0073b7 0%, #005a8e 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 20px -10px rgba(0, 115, 183, 0.5);
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -12px rgba(0, 115, 183, 0.6);
+            filter: brightness(110%);
+        }
+
+        /* Modern Glass Cards */
+        .lab-card { 
+            background: white;
+            transition: all 0.4s ease; 
+            border: 1px solid #e2e8f0; 
+        }
+        .lab-card:hover { 
+            transform: translateY(-8px); 
+            border-color: #0073b7; 
+            box-shadow: 0 20px 25px -5px rgba(0, 115, 183, 0.1), 0 10px 10px -5px rgba(0, 115, 183, 0.04); 
+        }
+        
         .arabic { direction: rtl; text-align: right; }
+        
+        /* Custom UI Decorations */
+        .gold-accent { width: 40px; height: 4px; background: #b2935b; border-radius: 2px; }
     </style>
 </head>
 <body>
@@ -43,7 +70,6 @@
 
             const handleLogin = (e) => {
                 e.preventDefault();
-                // Check if both fields are filled (you can add specific validation here)
                 if(formData.studentId && formData.serialNum) {
                     setIsLoggedIn(true);
                     sessionStorage.setItem('ksu_auth', 'true');
@@ -52,39 +78,49 @@
 
             if (!isLoggedIn) {
                 return (
-                    <div className="min-h-screen flex items-center justify-center bg-slate-100 p-4">
-                        <div className="bg-white p-8 rounded-3xl shadow-xl max-w-sm w-full border-t-8 ksu-border text-center">
-                            <img src="CFY_Logo.png" className="h-16 mx-auto mb-6" />
-                            <h2 className="text-xl font-black ksu-blue uppercase mb-2 leading-tight">Differentiable Calculus</h2>
-                            <p className="text-slate-400 font-bold text-[10px] uppercase tracking-widest mb-6 border-b pb-4">AI Applications Portal</p>
+                    <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-[#e2e8f0] to-[#ffffff] p-4">
+                        <div className="bg-white p-10 rounded-[2.5rem] shadow-2xl max-w-md w-full border-t-[12px] ksu-border text-center relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-8 opacity-5">
+                                <img src="CFY_Logo.png" className="w-32" />
+                            </div>
                             
-                            <form onSubmit={handleLogin} className="space-y-4">
-                                <div className="text-left">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase ml-2">University ID</label>
+                            <img src="CFY_Logo.png" className="h-20 mx-auto mb-8 drop-shadow-sm" />
+                            
+                            <h2 className="text-2xl font-black ksu-blue uppercase mb-2 tracking-tight">Differentiable Calculus</h2>
+                            <p className="text-slate-400 font-bold text-xs uppercase tracking-[0.2em] mb-8"> AI Applications Portal</p>
+                            
+                            <form onSubmit={handleLogin} className="space-y-5 relative z-10">
+                                <div className="text-left group">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase ml-4 mb-1 block group-focus-within:text-blue-500 transition-colors">University ID</label>
                                     <input 
                                         type="text" 
                                         placeholder="Enter Student ID" 
-                                        className="w-full p-4 bg-slate-50 rounded-xl border-2 outline-none focus:border-blue-500 font-bold"
+                                        className="w-full p-4 bg-slate-50 rounded-2xl border-2 border-slate-100 outline-none focus:border-blue-500 focus:bg-white font-bold text-slate-700 transition-all"
                                         value={formData.studentId}
                                         onChange={(e) => setFormData({...formData, studentId: e.target.value})}
                                         required 
                                     />
                                 </div>
-                                <div className="text-left">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase ml-2">Book Serial Number</label>
+                                <div className="text-left group">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase ml-4 mb-1 block group-focus-within:text-blue-500 transition-colors">Book Serial Number</label>
                                     <input 
                                         type="password" 
-                                        placeholder="Enter Serial Number" 
-                                        className="w-full p-4 bg-slate-50 rounded-xl border-2 outline-none focus:border-blue-500 font-bold"
+                                        placeholder="••••••••" 
+                                        className="w-full p-4 bg-slate-50 rounded-2xl border-2 border-slate-100 outline-none focus:border-blue-500 focus:bg-white font-bold text-slate-700 transition-all"
                                         value={formData.serialNum}
                                         onChange={(e) => setFormData({...formData, serialNum: e.target.value})}
                                         required 
                                     />
                                 </div>
-                                <button className="w-full ksu-bg text-white py-4 rounded-xl font-black uppercase tracking-widest hover:brightness-110 shadow-lg transition-all mt-4">
-                                    Verify & Access Labs
+                                <button className="w-full btn-login text-white py-5 rounded-2xl font-black uppercase tracking-widest text-sm mt-4">
+                                    Verify & Access Curriculum
                                 </button>
                             </form>
+                            
+                            <div className="mt-10 flex flex-col items-center">
+                                <div className="gold-accent mb-4"></div>
+                                <p className="arabic text-slate-400 font-bold text-xs">جامعة الملك سعود - السنة الأولى المشتركة</p>
+                            </div>
                         </div>
                     </div>
                 );
@@ -92,37 +128,62 @@
 
             return (
                 <div className="min-h-screen pb-20">
-                    <header className="bg-white border-b-4 ksu-border p-6 flex justify-between items-center sticky top-0 z-50 shadow-sm">
-                        <img src="CFY_Logo.png" className="h-10" />
-                        <div className="text-right">
-                            <p className="text-xs font-black ksu-blue uppercase leading-none mb-1">Total Progress: {Math.round((completedLabs.length/16)*100)}%</p>
-                            <button onClick={() => {sessionStorage.clear(); location.reload();}} className="text-[9px] font-bold text-red-500 uppercase tracking-widest hover:underline">Logout Terminal</button>
+                    <header className="bg-white/80 backdrop-blur-md border-b-4 ksu-border p-6 flex justify-between items-center sticky top-0 z-50 shadow-lg">
+                        <div className="flex items-center gap-4">
+                            <img src="CFY_Logo.png" className="h-10" />
+                            <div className="h-8 w-[2px] bg-slate-200 hidden md:block"></div>
+                            <h1 className="text-sm font-black ksu-blue uppercase tracking-tighter hidden md:block italic">Academic Dashboard</h1>
+                        </div>
+                        <div className="text-right flex items-center gap-6">
+                            <div className="hidden sm:block">
+                                <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Your Progress</p>
+                                <div className="w-32 h-2 bg-slate-100 rounded-full overflow-hidden border">
+                                    <div 
+                                        className="h-full ksu-bg transition-all duration-1000" 
+                                        style={{width: `${(completedLabs.length/16)*100}%`}}
+                                    ></div>
+                                </div>
+                            </div>
+                            <button onClick={() => {sessionStorage.clear(); location.reload();}} className="bg-red-50 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all shadow-sm border border-red-100">Sign Out</button>
                         </div>
                     </header>
 
-                    <main className="p-6 max-w-7xl mx-auto">
-                        <div className="mb-8 flex justify-between items-end">
-                            <div>
-                                <h2 className="text-3xl font-black text-slate-800 italic uppercase">Your Dashboard</h2>
-                                <p className="text-slate-400 font-bold text-xs tracking-widest">INTERACTIVE LAB CURRICULUM</p>
-                            </div>
+                    <main className="p-6 md:p-12 max-w-7xl mx-auto">
+                        <div className="mb-12">
+                            <h2 className="text-4xl font-black text-slate-800 italic uppercase leading-none mb-2">Interactive Labs</h2>
+                            <div className="gold-accent mb-4"></div>
+                            <p className="text-slate-400 font-bold text-sm tracking-[0.2em]">MATHEMATICS FOR INTELLIGENT SYSTEMS</p>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                             {labs.map(lab => (
-                                <div key={lab.id} className="lab-card bg-white p-6 rounded-2xl relative">
-                                    <div className="flex justify-between items-start mb-4">
-                                        <span className={`text-[9px] font-black px-2 py-1 rounded tracking-tighter ${completedLabs.includes(lab.id) ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-400'}`}>
-                                            {completedLabs.includes(lab.id) ? '✓ COMPLETED' : 'STATUS: PENDING'}
-                                        </span>
-                                        <span className="text-2xl font-black italic text-slate-100">0{lab.id}</span>
+                                <div key={lab.id} className="lab-card p-8 rounded-[2rem] relative overflow-hidden group">
+                                    {/* Number Watermark */}
+                                    <span className="absolute -top-4 -right-2 text-8xl font-black italic text-slate-50 group-hover:text-blue-50 transition-colors">{lab.id}</span>
+                                    
+                                    <div className="relative z-10">
+                                        <div className="mb-6">
+                                            {completedLabs.includes(lab.id) ? (
+                                                <span className="bg-green-100 text-green-600 text-[10px] font-black px-3 py-1.5 rounded-full border border-green-200">✓ COMPLETED</span>
+                                            ) : (
+                                                <span className="bg-slate-50 text-slate-400 text-[10px] font-black px-3 py-1.5 rounded-full border border-slate-100">INCOMPLETE</span>
+                                            )}
+                                        </div>
+                                        
+                                        <h3 className="font-black text-slate-800 text-xl mb-8 group-hover:ksu-blue transition-colors leading-tight">{lab.title}</h3>
+                                        
+                                        <a href={lab.file} className="inline-flex items-center justify-center w-full py-4 ksu-bg text-white rounded-2xl font-black text-[11px] uppercase tracking-widest hover:brightness-110 shadow-lg transition-all active:scale-95">
+                                            Launch Module
+                                        </a>
                                     </div>
-                                    <h3 className="font-black text-slate-800 mb-6">{lab.title}</h3>
-                                    <a href={lab.file} className="block w-full text-center py-3 ksu-bg text-white rounded-lg font-black text-[10px] uppercase tracking-widest hover:brightness-110 transition-all">Launch Lab</a>
                                 </div>
                             ))}
                         </div>
                     </main>
+                    
+                    <footer className="text-center mt-12 opacity-30">
+                        <img src="CFY_Logo.png" className="h-8 mx-auto grayscale" />
+                    </footer>
                 </div>
             );
         };
