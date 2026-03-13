@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus for AI — Final Capstone Lab</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .ksu-blue { color: #0073b7; }
+        .ksu-bg { background-color: #0073b7; }
+        .ksu-border { border-color: #0073b7; }
+        .math-font { font-family: 'Courier New', monospace; }
+        .arabic { direction: rtl; text-align: right; }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0073b7 0%, #005a8e 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 115, 183, 0.3);
+            color: white;
+        }
+        .btn-primary:hover { transform: translateY(-2px); filter: brightness(110%); }
+
+        .result-black {
+            background-color: #0f172a;
+            border-left: 4px solid #0073b7;
+            color: #38bdf8;
+        }
+
+        .activity-box {
+            background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+            border: 1px solid #c7d2fe;
+            border-left: 6px solid #1e40af;
+        }
+
+        .quiz-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        .quiz-card.correct { border-color: #10b981; background-color: #ecfdf5; }
+        .quiz-card.wrong { border-color: #ef4444; background-color: #fef2f2; }
+
+        input[type=number] { outline: none; text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const App = () => {
+            // --- SIMULATOR LOGIC ---
+            const [weight, setWeight] = useState(1.0);
+            const [lr, setLr] = useState(0.2);
+            const [iter, setIter] = useState(0);
+            const [history, setHistory] = useState([]);
+            const target = 5.0;
+
+            const runTrainStep = () => {
+                const grad = 2 * (weight - target);
+                const stepSize = lr * grad;
+                const nextW = weight - stepSize;
+                
+                const newEntry = {
+                    i: iter + 1,
+                    w: nextW.toFixed(3),
+                    grad: grad.toFixed(3),
+                    loss: Math.pow(nextW - target, 2).toFixed(4)
+                };
+
+                setIter(iter + 1);
+                setWeight(nextW);
+                setHistory([newEntry, ...history]);
+            };
+
+            const resetSim = () => {
+                setWeight(1.0);
+                setIter(0);
+                setHistory([]);
+                setLr(0.2);
+            };
+
+            // --- QUIZ LOGIC ---
+            const [quizResults, setQuizResults] = useState({});
+            
+            const questions = [
+                {
+                    id: 'q1',
+                    text: "What is the primary role of the Chain Rule in AI?",
+                    ar: "ما هو الدور الأساسي لقاعدة السلسلة في الذكاء الاصطناعي؟",
+                    options: [
+                        { text: "Adding noise to images", correct: false },
+                        { text: "Backpropagating gradients through layers", correct: true },
+                        { text: "Calculating the learning rate", correct: false }
+                    ],
+                    hint: "Think about composite functions f(g(x))."
+                },
+                {
+                    id: 'q2',
+                    text: "When a function f(x) is continuous, what is guaranteed during training?",
+                    ar: "عندما تكون الدالة مستمرة، ما الذي يتم ضمانه أثناء التدريب؟",
+                    options: [
+                        { text: "Small changes in input lead to small changes in output", correct: true },
+                        { text: "The loss will always be zero", correct: false },
+                        { text: "The weights will never change", correct: false }
+                    ],
+                    hint: "Continuity prevents sudden jumps."
+                },
+                {
+                    id: 'q3',
+                    text: "In the update rule (w = w - α * grad), what does α represent?",
+                    ar: "في قاعدة التحديث، ماذا يمثل الرمز α؟",
+                    options: [
+                        { text: "The initial weight", correct: false },
+                        { text: "The activation function", correct: false },
+                        { text: "The Learning Rate", correct: true }
+                    ],
+                    hint: "It controls the size of the optimization step."
+                },
+                {
+                    id: 'q4',
+                    text: "Trigonometric functions (sin/cos) are essential for which AI task?",
+                    ar: "الدوال المثلثية ضرورية لأي مهمة في الذكاء الاصطناعي؟",
+                    options: [
+                        { text: "Image Rotation and Spatial Transforms", correct: true },
+                        { text: "Sorting database records", correct: false },
+                        { text: "Text translation only", correct: false }
+                    ],
+                    hint: "Used in Rotation Matrices."
+                },
+                {
+                    id: 'q5',
+                    text: "What describes the behavior of Sigmoid as x approaches infinity?",
+                    ar: "ماذا يصف سلوك دالة سيجمويد عندما تقترب x من اللانهاية؟",
+                    options: [
+                        { text: "It approaches 0", correct: false },
+                        { text: "It approaches 1 (Saturation)", correct: true },
+                        { text: "It becomes undefined", correct: false }
+                    ],
+                    hint: "Look at the limit as x → ∞."
+                }
+            ];
+
+            const handleQuiz = (qId, isCorrect) => {
+                setQuizResults(prev => ({ ...prev, [qId]: isCorrect }));
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    {/* HEADER */}
+                    <header className="bg-white border-b-4 ksu-border px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-md sticky top-0 z-50">
+                        <img src="CFY_Logo.png" alt="KSU Logo" className="h-14 mb-4 md:mb-0 object-contain" />
+                        <div className="text-center md:text-right">
+                            <h1 className="text-xl md:text-2xl font-black ksu-blue uppercase tracking-tight leading-tight">Final Capstone</h1>
+                            <p className="text-slate-500 font-bold text-xs uppercase tracking-widest leading-tight">Integrating All AI Calculus Concepts</p>
+                        </div>
+                    </header>
+
+                    <main className="p-4 md:p-8 max-w-7xl mx-auto w-full space-y-12">
+                        
+                        {/* REDUCED CONCEPT IMAGE SECTION */}
+                        <section className="bg-white p-4 rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+                            <div className="flex flex-col md:flex-row items-center gap-6">
+                                <div className="w-full md:w-1/3">
+                                    <img src="4.Final_image.png" alt="Calculus Synergy" className="w-full h-auto object-contain rounded-xl shadow-inner border border-slate-100" />
+                                </div>
+                                <div className="w-full md:w-2/3 grid grid-cols-1 gap-4 text-sm text-slate-700 font-semibold italic">
+                                    <p>Calculus provides the mathematical engine that allows AI models to see, learn, and optimize decision-making.</p>
+                                    <p className="arabic">يوفر التفاضل والتكامل المحرك الرياضي الذي يسمح لنماذج الذكاء الاصطناعي بالرؤية والتعلم وتحسين عملية اتخاذ القرار.</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* SECTION 1: MASTER SIMULATOR */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div className="space-y-6">
+                                <section className="activity-box p-6 rounded-2xl shadow-xl h-full">
+                                    <h2 className="text-xl font-black text-blue-900 mb-2 uppercase italic">AI Optimization Engine</h2>
+                                    <p className="text-sm text-slate-700 mb-6 border-b border-blue-200 pb-2">
+                                        Optimization Target: <b>Loss = (w - 5)²</b>. Minimize loss using gradients.
+                                    </p>
+                                    
+                                    <div className="space-y-6">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="bg-white p-4 rounded-xl border shadow-sm">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase block mb-1 text-center">Learning Rate (α)</label>
+                                                <input type="number" step="0.05" className="w-full text-blue-600" value={lr} onChange={(e)=>setLr(parseFloat(e.target.value))} />
+                                            </div>
+                                            <div className="bg-white p-4 rounded-xl border shadow-sm">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase block mb-1 text-center">Target Value</label>
+                                                <div className="text-center font-black text-slate-800">5.00</div>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-white p-6 rounded-xl border-2 border-blue-100 text-center">
+                                            <span className="text-xs font-black uppercase text-slate-400 block mb-2">Current Model Weight (w)</span>
+                                            <span className="text-5xl font-black ksu-blue math-font">{weight.toFixed(3)}</span>
+                                        </div>
+
+                                        <button onClick={runTrainStep} className="w-full btn-primary py-5 rounded-2xl font-black uppercase tracking-widest text-lg shadow-xl">
+                                            ⚡ Execute Training Step
+                                        </button>
+
+                                        <div className="flex justify-between items-center px-2">
+                                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Iterations: {iter}</div>
+                                            <button onClick={resetSim} className="text-[10px] font-black text-red-400 uppercase hover:text-red-600 underline tracking-widest">Reset Simulator</button>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+
+                            <div className="result-black p-6 rounded-2xl shadow-2xl flex flex-col h-[520px]">
+                                <h3 className="text-xs font-black uppercase text-blue-400 mb-4 tracking-widest flex justify-between">
+                                    <span>Real-Time Math Analytics</span>
+                                    <span className="text-yellow-400 animate-pulse">{iter > 0 && "CONVERGING..."}</span>
+                                </h3>
+                                <div className="flex-grow overflow-y-auto space-y-3 pr-2 custom-scrollbar">
+                                    {history.length === 0 ? (
+                                        <div className="text-slate-500 italic text-sm mt-20 text-center">Awaiting gradient computation...</div>
+                                    ) : history.map((h, index) => (
+                                        <div key={index} className="bg-slate-800 bg-opacity-40 p-3 rounded-lg border-l-2 border-blue-500 text-[11px]">
+                                            <div className="flex justify-between font-bold mb-1">
+                                                <span className="text-blue-300">Iteration {h.i}</span>
+                                                <span className="text-green-400">Loss: {h.loss}</span>
+                                            </div>
+                                            <div className="grid grid-cols-2 text-slate-300">
+                                                <span>Weight: {h.w}</span>
+                                                <span>f'(w): {h.grad}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                {weight.toFixed(2) == 5.00 && (
+                                    <div className="mt-4 p-3 bg-green-900 bg-opacity-30 rounded border border-green-500 text-green-400 text-[10px] font-bold text-center uppercase tracking-widest">
+                                        Success: Global Minimum Reached
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* SECTION 2: FINAL KNOWLEDGE ASSESSMENT */}
+                        <section className="bg-white p-8 rounded-3xl shadow-xl border-t-8 ksu-border">
+                            <div className="text-center mb-10">
+                                <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Final Knowledge Check</h2>
+                                <p className="text-slate-500 text-sm font-bold uppercase tracking-widest mt-1">Complete all tasks to finish the module</p>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-1 gap-8 max-w-4xl mx-auto">
+                                {questions.map((q, qIdx) => (
+                                    <div key={q.id} className={`quiz-card p-6 rounded-2xl ${quizResults[q.id] === true ? 'correct' : quizResults[q.id] === false ? 'wrong' : ''}`}>
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <span className="ksu-bg text-white px-3 py-1 rounded text-[10px] font-black uppercase tracking-tighter">Task 0{qIdx+1}</span>
+                                            <h4 className="font-bold text-slate-800 text-lg">{q.text}</h4>
+                                        </div>
+                                        <p className="arabic text-sm mt-[-10px] mb-6 text-slate-600 font-medium">{q.ar}</p>
+                                        
+                                        <div className="grid grid-cols-1 gap-3">
+                                            {q.options.map((opt, oIdx) => (
+                                                <button 
+                                                    key={oIdx}
+                                                    onClick={() => handleQuiz(q.id, opt.correct)}
+                                                    className="w-full text-left p-4 border-2 border-slate-100 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition-all text-sm font-semibold text-slate-700"
+                                                >
+                                                    {String.fromCharCode(65 + oIdx)}) {opt.text}
+                                                </button>
+                                            ))}
+                                        </div>
+
+                                        {quizResults[q.id] === true && (
+                                            <div className="mt-4 text-green-600 text-xs font-black uppercase flex items-center gap-2 animate-bounce">
+                                                <span>✅ Correct! {q.hint}</span>
+                                            </div>
+                                        )}
+                                        {quizResults[q.id] === false && (
+                                            <div className="mt-4 text-red-600 text-xs font-black uppercase flex items-center gap-2">
+                                                <span>❌ Keep trying! Refer to the lesson notes.</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+
+                        {/* FINAL SUMMARY */}
+                        <div className="text-center py-10 bg-white rounded-3xl border-2 border-dashed border-slate-200">
+                            <div className="ksu-blue text-6xl mb-4">🏆</div>
+                            <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tighter">Certification of Participation</h3>
+                            <p className="max-w-2xl mx-auto text-slate-500 mt-4 px-6 italic text-sm">
+                                You have successfully completed the Differentiable Calculus for AI course. You have mastered the concepts of limits, continuous training, and optimized backpropagation.
+                            </p>
+                            <p className="arabic max-w-2xl mx-auto text-blue-900 font-bold mt-4 px-6">
+                                لقد أكملت بنجاح دورة التفاضل والتكامل للذكاء الاصطناعي. لقد أتقنت مفاهيم النهايات، والتدريب المستمر، والانتشار العكسي المحسن.
+                            </p>
+                        </div>
+
+                    </main>
+
+                    {/* FOOTER */}
+                    <footer className="bg-white border-t-4 ksu-border mt-12 py-12 text-center shadow-lg">
+                        <p className="font-black ksu-blue text-2xl tracking-tight mb-2 uppercase">Differentiable Calculus with AI Applications</p>
+                        <p className="text-slate-400 font-bold text-[11px] uppercase tracking-[0.4em]">Deanship of Common First Year – Basic Sciences Department</p>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
