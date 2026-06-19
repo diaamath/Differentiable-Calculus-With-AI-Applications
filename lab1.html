@@ -3,181 +3,1391 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Math 101 — Sets & Inequalities in AI</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <title>KSU Lab — Sets, Inequalities & Transformers in AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .ksu-blue { color: #0073b7; }
-        .ksu-bg { background-color: #0073b7; }
-        .ksu-border { border-color: #0073b7; }
-        .math-font { font-family: 'Courier New', monospace; }
-        .arabic { direction: rtl; text-align: right; }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #0073b7 0%, #005a8e 100%);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 15px rgba(0, 115, 183, 0.3);
-            color: white;
+        :root {
+            /* Palette directly inspired by the Book Cover */
+            --book-dark: #2A2E35;
+            --book-midnight: #1E2229;
+            --gold-accent: #F4B400;
+            --pure-white: #FFFFFF;
+            --bg-light: #F4F6F9;
+            
+            /* UI Utility States */
+            --success-green: #10B981;
+            --danger-red: #EF4444;
+            --text-main: #2D3748;
+            --text-muted: #718096;
+            
+            /* Transitions & Token Custom Properties */
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --token-bg-start: linear-gradient(135deg, #F4B400, #FFE082);
+            --token-bg-done: linear-gradient(135deg, #10B981, #059669);
         }
-        .btn-primary:hover {
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .arabic {
+            font-family: 'Inter', sans-serif;
+            direction: rtl;
+            text-align: right;
+        }
+
+        /* STICKY HEADER WITH GEOMETRIC BOOK STYLE */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(42, 46, 53, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 4px solid var(--gold-accent);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 0.85rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            color: var(--pure-white);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .ksu-logo-img {
+            height: 50px;
+            object-fit: contain;
+            background: var(--pure-white);
+            padding: 4px;
+            border-radius: 6px;
+        }
+
+        .header-titles h1 {
+            color: var(--gold-accent);
+            font-size: 1.4rem;
+            font-weight: 900;
+            letter-spacing: -0.01em;
+        }
+
+        .header-titles p {
+            color: #E2E8F0;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .timer-box {
+            background: var(--book-midnight);
+            color: var(--gold-accent);
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.05rem;
+            border: 1px solid rgba(244, 180, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .timer-box::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--danger-red);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.6; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.6; }
+        }
+
+        .progress-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            width: 150px;
+        }
+
+        .progress-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #CBD5E1;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-track {
+            background: #4A5568;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: var(--gold-accent);
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* FULL SCREEN UTILITY TOGGLE BUTTON */
+        .fullscreen-btn {
+            background: transparent;
+            border: 2px solid var(--gold-accent);
+            color: var(--gold-accent);
+            padding: 0.45rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: var(--transition-smooth);
+        }
+
+        .fullscreen-btn:hover {
+            background: var(--gold-accent);
+            color: var(--book-dark);
+        }
+
+        /* MAIN RESPONSIBLE WORKSPACE LAYOUT */
+        main {
+            max-width: 1440px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CARD CORE STYLING */
+        .card {
+            background: var(--pure-white);
+            border-radius: 12px;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: var(--transition-smooth);
+            overflow: hidden;
+        }
+
+        .card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 115, 183, 0.4);
-            filter: brightness(110%);
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08);
         }
-        .btn-primary:active { transform: scale(0.96); }
 
-        .btn-reset {
-            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-            transition: all 0.3s ease;
-            color: white;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        /* INTRODUCTION COMPONENT */
+        .intro-section {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
         }
-        .btn-reset:hover { filter: brightness(110%); transform: translateY(-1px); }
+        @media (min-width: 768px) {
+            .intro-section { grid-template-columns: 350px 1fr; }
+        }
 
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { opacity: 1; }
+        .intro-img {
+            width: 100%;
+            height: 220px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            padding: 0.5rem;
+        }
+
+        .intro-text-box {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            align-items: center;
+            padding: 1rem;
+        }
+        @media (min-width: 640px) {
+            .intro-text-box { grid-template-columns: 1fr 1fr; }
+            .intro-text-box div:first-child { border-right: 2px solid #E2E8F0; padding-right: 1.5rem; }
+        }
+
+        .intro-text-box p {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--book-dark);
+            line-height: 1.7;
+        }
+
+        /* CONCEPT BOXES */
+        .concept-box {
+            background: #F8FAFC;
+            border-left: 4px solid var(--gold-accent);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+            border-top: 1px solid #E2E8F0;
+            border-right: 1px solid #E2E8F0;
+            border-bottom: 1px solid #E2E8F0;
+        }
+        .concept-heading {
+            font-size: 0.7rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--book-dark);
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        /* CORE LAB EXERCISES GRID MATRIX */
+        .lab-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .lab-grid { grid-template-columns: repeat(2, 1fr); }
+            .lab-grid article:last-child { grid-column: span 2; }
+        }
+        @media (min-width: 1024px) {
+            .lab-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .card-header {
+            padding: 1.25rem;
+            background: var(--book-dark);
+            color: var(--pure-white);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 3px solid var(--gold-accent);
+        }
+
+        .exercise-badge {
+            background: var(--gold-accent);
+            color: var(--book-dark);
+            font-size: 0.7rem;
+            font-weight: 900;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .card-header h2 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .card-body {
+            padding: 1.25rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .input-control {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: 2px solid #CBD5E1;
+            border-radius: 8px;
+            background-color: #F8FAFC;
+            transition: var(--transition-smooth);
+        }
+
+        .input-control:focus {
+            outline: none;
+            border-color: var(--book-dark);
+            background-color: var(--pure-white);
+            box-shadow: 0 0 0 3px rgba(42, 46, 53, 0.1);
+        }
+
+        /* PREMIUM BUTTONS STYLE */
+        .btn {
+            width: 100%;
+            padding: 0.8rem 1.25rem;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--pure-white);
+            background: linear-gradient(135deg, var(--book-dark) 0%, #424752 100%);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            box-shadow: 0 4px 10px rgba(42, 46, 53, 0.15);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #424752 0%, var(--book-dark) 100%);
+            box-shadow: 0 6px 15px rgba(42, 46, 53, 0.25);
+            color: var(--gold-accent);
+        }
+
+        /* OUTPUT TERMINAL PANEL */
+        .terminal {
+            margin-top: 1.25rem;
+            background: var(--book-midnight);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: #E2E8F0;
+            border-left: 4px solid var(--gold-accent);
+            min-height: 85px;
+            white-space: pre-line;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        /* ASSESSMENT HEADINGS */
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--book-dark);
+            border-bottom: 2px solid #E2E8F0;
+            padding-bottom: 0.4rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 22px;
+            background: var(--gold-accent);
+            border-radius: 2px;
+        }
+
+        .questions-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        @media (min-width: 640px) and (max-width: 1023px) {
+            .questions-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (min-width: 1024px) {
+            .questions-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .quiz-card {
+            background: var(--pure-white);
+            padding: 1.25rem;
+            border-radius: 10px;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .quiz-question {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--book-dark);
+            margin-bottom: 1rem;
+            min-height: 44px;
+        }
+
+        .choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .choice-btn {
+            width: 100%;
+            text-align: left;
+            padding: 0.65rem 1rem;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .choice-btn:hover:not(:disabled) {
+            background: #EDF2F7;
+            border-color: #CBD5E1;
+        }
+
+        .choice-btn.selected {
+            background: #FEEBC8;
+            border-color: var(--gold-accent);
+            color: #C05621;
+        }
+
+        .choice-btn.correct-highlight {
+            background: #D1FAE5;
+            border-color: var(--success-green);
+            color: #065F46;
+        }
+
+        .choice-btn.wrong-highlight {
+            background: #FEE2E2;
+            border-color: var(--danger-red);
+            color: #991B1B;
+        }
+
+        .answer-card {
+            background: #F8FAFC;
+            border: 1px dashed #CBD5E1;
+            border-radius: 6px;
+            padding: 0.85rem;
+            margin-top: 0.85rem;
+            font-size: 0.85rem;
+            animation: slideDown 0.25s ease-out forwards;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .practice-feedback {
+            margin-top: 0.65rem;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .feedback-correct { color: var(--success-green); }
+        .feedback-wrong { color: var(--danger-red); }
+
+        /* ========================================== */
+        /* TRANSFORMER SIMULATOR INTERFACE STYLES   */
+        /* ========================================== */
+        .transformer-container-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            width: 100%;
+        }
+        @media (min-width: 576px) and (max-width: 991px) {
+            .transformer-container-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (min-width: 992px) {
+            .transformer-container-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        .box {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 14px;
+            padding: 2rem 1.5rem;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: var(--transition-smooth);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .box b {
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .box .content-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--pure-white);
+        }
+
+        .box:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(244, 180, 0, 0.2);
+        }
+
+        #inputBox { border-top-color: #60A5FA; }
+        #tokenBox { border-top-color: var(--gold-accent); }
+        #modelBox { border-top-color: #A78BFA; }
+        #outputBox { border-top-color: #10B981; }
+
+        .glow {
+            background: rgba(167, 139, 250, 0.1) !important;
+            border-color: #A78BFA !important;
+            box-shadow: 0 0 30px rgba(167, 139, 250, 0.3), inset 0 0 15px rgba(167, 139, 250, 0.2) !important;
+        }
+
+        .glow-output {
+            background: rgba(16, 185, 129, 0.1) !important;
+            border-color: #10B981 !important;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.3) !important;
+        }
+
+        .token {
+            position: absolute;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: var(--token-bg-start);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 800;
+            font-size: 0.85rem;
+            color: var(--book-dark);
+            transition: left 1s cubic-bezier(0.25, 1, 0.5, 1), top 1s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease, background 0.5s ease;
+            box-shadow: 0 0 20px rgba(244, 180, 0, 0.3);
+            z-index: 5;
+            padding: 4px;
+            text-align: center;
+            word-break: break-all;
+        }
+
+        /* PERFORMANCE MANAGEMENT PROFILE DASHBOARD */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        @media (min-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr 300px; }
+        }
+
+        .scoring-summary-card {
+            background: var(--pure-white);
+            border: 1px solid #E2E8F0;
+            padding: 1.25rem;
+            border-radius: 12px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid #E2E8F0;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .metric-row:last-of-type { border-bottom: none; margin-bottom: 1rem; }
+        .metric-row span:last-child { font-weight: 700; }
+
+        .score-badge-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: #F8FAFC;
+            padding: 0.85rem;
+            border-radius: 8px;
+            border: 1px solid #E2E8F0;
+        }
+
+        .score-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 900;
+        }
+
+        .rating-text {
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .rank-excellent { background: var(--success-green); color: white; }
+        .rank-verygood { background: #3182CE; color: white; }
+        .rank-good { background: var(--gold-accent); color: var(--book-dark); }
+        .rank-review { background: var(--danger-red); color: white; }
+
+        .text-excellent { color: var(--success-green); }
+        .text-verygood { color: #3182CE; }
+        .text-good { color: var(--gold-accent); }
+        .text-review { color: var(--danger-red); }
+
+        /* COMPLETION CERTIFICATE */
+        .certificate-card {
+            background: linear-gradient(135deg, #FFFDF5 0%, #FFFDF0 100%);
+            border: 2px solid var(--gold-accent);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(244, 180, 0, 0.08);
+            margin-top: 1rem;
+        }
+
+        .certificate-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--book-dark);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .certificate-meta {
+            margin: 1.25rem auto;
+            max-width: 500px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            background: var(--pure-white);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #FEF3C7;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+
+        .certificate-meta div span {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .certificate-meta div strong {
+            color: var(--book-dark);
+        }
+
+        /* PREMIUM GEOMETRIC FOOTER */
+        footer {
+            background: var(--book-dark);
+            border-top: 4px solid var(--gold-accent);
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            margin-top: 5rem;
+            color: var(--pure-white);
+        }
+
+        footer h3 {
+            color: var(--gold-accent);
+            font-size: 1.25rem;
+            font-weight: 900;
+            margin-bottom: 0.4rem;
+        }
+
+        footer p {
+            color: #94A3B8;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+        }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
-    <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState } = React;
-
-        const ConceptBox = ({ en, ar }) => (
-            <div className="bg-blue-50 border-l-4 ksu-border p-4 rounded-r-lg mb-4 shadow-sm">
-                <p className="font-semibold text-slate-800 text-sm italic">Concept: <span className="font-normal not-italic">{en}</span></p>
-                <p className="font-semibold text-slate-800 mt-2 text-sm arabic">الفكرة: <span className="font-normal">{ar}</span></p>
+    <header id="labHeader">
+        <div class="header-brand">
+            <img src="CFY_Logo.png" onerror="this.src='CFY_Logo.jpg'; this.onerror=function(){this.src='CFY_Logo.jfif'; this.onerror=function(){this.style.display='none';}}" alt="KSU Logo" class="ksu-logo-img">
+            <div class="header-titles">
+                <h1>SECTION 1.1</h1>
+                <p>Sets of Numbers & Inequalities in AI</p>
             </div>
-        );
-
-        const OutputDisplay = ({ content }) => (
-            <div className="mt-3 p-4 bg-slate-900 text-blue-400 rounded-lg math-font text-sm min-h-[50px] whitespace-pre-wrap shadow-inner border-l-4 ksu-border border-opacity-50">
-                {content || "> System Ready..."}
-            </div>
-        );
-
-        const App = () => {
-            const [tokenId, setTokenId] = useState(421);
-            const [out1, setOut1] = useState("");
-            const [prob, setProb] = useState(0.65);
-            const [out2, setOut2] = useState("");
-            const [medProb, setMedProb] = useState(0.75);
-            const [medAge, setMedAge] = useState(62);
-            const [out3, setOut3] = useState("");
-
-            const resetAll = () => {
-                setTokenId(0); setOut1("");
-                setProb(0); setOut2("");
-                setMedProb(0); setMedAge(0); setOut3("");
-            };
-
-            return (
-                <div className="min-h-screen flex flex-col">
-                    <header className="bg-white border-b-4 ksu-border px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-md sticky top-0 z-50">
-                        <img src="CFY_Logo.png" alt="KSU Logo" className="h-14 mb-4 md:mb-0 object-contain" />
-                        <div className="text-center md:text-right">
-                            <h1 className="text-xl md:text-2xl font-black ksu-blue uppercase tracking-tight">Section 1.1</h1>
-                            <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Sets of Numbers & Inequalities in AI</p>
-                        </div>
-                    </header>
-
-                    <main className="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div className="space-y-8">
-                            <section className="bg-white p-2 rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-                                <img src="1.1_image.png" alt="Lab Concept" className="w-full h-65 object-cover rounded-xl mb-4" />
-                                <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="md:border-r md:pr-4">
-                                        <p className="text-sm text-slate-700 font-medium leading-relaxed italic">Sets and inequalities help AI organize data and make decisions.</p>
-                                    </div>
-                                    <div className="arabic">
-                                        <p className="text-sm text-slate-700 font-medium leading-relaxed">تساعد المجموعات والمتباينات الذكاء الاصطناعي على تنظيم البيانات واتخاذ القرار.</p>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <section className="bg-white p-6 rounded-2xl shadow-xl border-t-8 ksu-border">
-                                <div className="flex items-center mb-6">
-                                    <div className="ksu-bg text-white px-3 py-1 rounded text-xs font-black mr-3 uppercase shadow-sm">Ex 01</div>
-                                    <h2 className="text-lg font-black text-slate-800 uppercase tracking-tight">Integer Sets (Tokens)</h2>
-                                </div>
-                                <ConceptBox en="Tokens in AI belong to the integer set ℤ." ar="تنتمي الرموز في الذكاء الاصطناعي إلى مجموعة الأعداد الصحيحة ℤ." />
-                                <div className="space-y-4">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Input: Token ID</label>
-                                    <input type="number" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:ksu-border outline-none transition-all" value={tokenId} onChange={(e)=>setTokenId(e.target.value)} />
-                                    <button onClick={() => setOut1(Number.isInteger(parseFloat(tokenId)) && tokenId >= 0 ? `SUCCESS: Token ${tokenId} ∈ ℤ\nStatus: Valid Data Point` : `ERROR: Token ${tokenId} ∉ ℤ\nStatus: Invalid Index`)} 
-                                            className="w-full btn-primary font-black py-4 rounded-xl uppercase tracking-wider text-sm">
-                                        VALIDATE INTEGER SET
-                                    </button>
-                                    <OutputDisplay content={out1} />
-                                </div>
-                            </section>
-                        </div>
-
-                        <div className="space-y-8">
-                            <section className="bg-white p-6 rounded-2xl shadow-xl border-t-8 ksu-border">
-                                <div className="flex items-center mb-6">
-                                    <div className="ksu-bg text-white px-3 py-1 rounded text-xs font-black mr-3 uppercase shadow-sm">Ex 02</div>
-                                    <h2 className="text-lg font-black text-slate-800 uppercase tracking-tight">Decision Inequalities</h2>
-                                </div>
-                                <ConceptBox en="AI decisions use inequalities such as ≥ and ≤." ar="يستخدم الذكاء الاصطناعي المتباينات لاتخاذ القرار." />
-                                <div className="space-y-4">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Input: Probability (p)</label>
-                                    <input type="number" step="0.01" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:ksu-border outline-none transition-all" value={prob} onChange={(e)=>setProb(e.target.value)} />
-                                    <button onClick={() => setOut2(prob >= 0.5 ? `THRESHOLD: p = ${prob} ≥ 0.5\nDECISION: POSITIVE CLASS` : `THRESHOLD: p = ${prob} < 0.5\nDECISION: NEGATIVE CLASS`)} 
-                                            className="w-full btn-primary font-black py-4 rounded-xl uppercase tracking-wider text-sm">
-                                        APPLY INEQUALITY
-                                    </button>
-                                    <OutputDisplay content={out2} />
-                                </div>
-                            </section>
-
-                            <section className="bg-white p-6 rounded-2xl shadow-xl border-t-8 ksu-border">
-                                <div className="flex items-center mb-6">
-                                    <div className="ksu-bg text-white px-3 py-1 rounded text-xs font-black mr-3 uppercase shadow-sm">Ex 03</div>
-                                    <h2 className="text-lg font-black text-slate-800 uppercase tracking-tight">Medical Intersection (∩)</h2>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4 mb-4">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase">Risk (p)</label>
-                                        <input type="number" step="0.01" className="w-full p-3 bg-slate-50 border rounded-lg outline-none focus:ksu-border font-bold" value={medProb} onChange={(e)=>setMedProb(e.target.value)} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase">Patient Age</label>
-                                        <input type="number" className="w-full p-3 bg-slate-50 border rounded-lg outline-none focus:ksu-border font-bold" value={medAge} onChange={(e)=>setMedAge(e.target.value)} />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <button onClick={() => {
-                                        if(medProb >= 0.7 && medAge >= 60) setOut3("SET INTERSECTION: High Risk ∩ Age ≥ 60\nACTION: URGENT MEDICAL CARE");
-                                        else if(medProb >= 0.7) setOut3("SET MEMBERSHIP: High Risk Set\nACTION: Clinical Follow-up");
-                                        else setOut3("SET MEMBERSHIP: Low Risk Set\nACTION: Routine Monitor");
-                                    }} className="btn-primary text-white font-black py-4 rounded-xl uppercase tracking-wider text-xs">
-                                        RUN ANALYSIS
-                                    </button>
-                                    <button onClick={resetAll} className="btn-reset font-black py-4 rounded-xl uppercase tracking-wider text-xs shadow-lg">
-                                        🔄 RESET ALL
-                                    </button>
-                                </div>
-                                <OutputDisplay content={out3} />
-                            </section>
-                        </div>
-                    </main>
-
-                    <footer className="bg-white border-t-4 ksu-border mt-12 py-12 text-center shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
-                        <p className="font-black ksu-blue text-2xl tracking-tight mb-2 uppercase">Differentiable Calculus with AI Applications</p>
-                        <p className="text-slate-400 font-bold text-[11px] uppercase tracking-[0.4em]">Deanship of Common First Year – Basic Sciences Department</p>
-                    </footer>
+        </div>
+        <div class="header-controls">
+            <button class="fullscreen-btn" onclick="toggleLabFullscreen()">Toggle Fullscreen</button>
+            <div class="timer-box" id="liveTimer">00:00:00</div>
+            <div class="progress-container">
+                <div class="progress-label">
+                    <span>Progress</span>
+                    <span id="progressPercent">0%</span>
                 </div>
-            );
+                <div class="progress-track">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="card intro-section">
+            <img src="img_1.png" onerror="this.src='img_1.jpg'; this.onerror=function(){this.src='img_1.jfif'; this.onerror=function(){this.src='img_1.JFIF';}}" alt="Lab Context Map" class="intro-img">
+            <div class="intro-text-box">
+                <div>
+                    <p class="italic">"Sets and inequalities help AI organize data and make decisions."</p>
+                </div>
+                <div class="arabic">
+                    <p>"تساعد المجموعات والمتباينات الذكاء الاصطناعي على تنظيم البيانات واتخاذ القرار."</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="lab-grid">
+            
+            <article class="card">
+                <div class="card-header">
+                    <span class="exercise-badge">Ex 01</span>
+                    <h2>Integer Sets (Tokens)</h2>
+                </div>
+                <div class="card-body">
+                    <div class="concept-box">
+                        <div class="concept-heading">Concept / الفكرة</div>
+                        <p style="font-size: 0.85rem; font-weight: 600;">Tokens in AI belong to the integer set ℤ.</p>
+                        <p class="arabic" style="font-size: 0.8rem; margin-top: 0.2rem;">تنتمي الرموز في الذكاء الاصطناعي إلى مجموعة الأعداد الصحيحة ℤ.</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="ex1Input">Input: Token ID</label>
+                        <input type="number" id="ex1Input" class="input-control" value="421">
+                    </div>
+                    <button class="btn" onclick="validateExercise1()">Validate Integer Set</button>
+                    <div class="terminal" id="ex1Terminal">System Ready...</div>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="card-header">
+                    <span class="exercise-badge">Ex 02</span>
+                    <h2>Decision Inequalities</h2>
+                </div>
+                <div class="card-body">
+                    <div class="concept-box">
+                        <div class="concept-heading">Concept / الفكرة</div>
+                        <p style="font-size: 0.85rem; font-weight: 600;">AI decisions use inequalities such as ≥ and ≤.</p>
+                        <p class="arabic" style="font-size: 0.8rem; margin-top: 0.2rem;">يستخدم الذكاء الاصطناعي المتباينات لاتخاذ القرار.</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="ex2Input">Input: Probability p</label>
+                        <input type="number" id="ex2Input" class="input-control" value="0.65" step="0.01">
+                    </div>
+                    <button class="btn" onclick="applyInequalityEx2()">Apply Inequality</button>
+                    <div class="terminal" id="ex2Terminal">System Ready...</div>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="card-header">
+                    <span class="exercise-badge">Ex 03</span>
+                    <h2>Medical Intersection (∩)</h2>
+                </div>
+                <div class="card-body">
+                    <div class="concept-box">
+                        <div class="concept-heading">Concept / الفكرة</div>
+                        <p style="font-size: 0.85rem; font-weight: 600;">Multi-variable set membership intersection constraints verification pipeline.</p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <div class="input-group">
+                            <label for="ex3Risk">Risk Probability</label>
+                            <input type="number" id="ex3Risk" class="input-control" value="0.75" step="0.01">
+                        </div>
+                        <div class="input-group">
+                            <label for="ex3Age">Age</label>
+                            <input type="number" id="ex3Age" class="input-control" value="62">
+                        </div>
+                    </div>
+                    <button class="btn" onclick="runIntersectionEx3()">Run Medical Intersection</button>
+                    <div class="terminal" id="ex3Terminal">System Ready...</div>
+                </div>
+            </article>
+
+        </section>
+
+        <section>
+            <h2 class="section-title">Training Questions</h2>
+            <div class="questions-grid">
+                
+                <div class="quiz-card">
+                    <div class="quiz-question">Question 1: Token ID = 150. Which set does it belong to?</div>
+                    <div class="choices-container">
+                        <button class="choice-btn" onclick="selectTrainingChoice(1, 'A', this)">A) ℕ</button>
+                        <button class="choice-btn" onclick="selectTrainingChoice(1, 'B', this)">B) ℤ</button>
+                        <button class="choice-btn" onclick="selectTrainingChoice(1, 'C', this)">C) ℚ</button>
+                    </div>
+                    <button class="btn" style="background: #4A5568;" onclick="toggleAnswer(1)">Show Answer</button>
+                    <div class="answer-card hidden" id="ans1">
+                        <strong>Correct Answer: ℤ</strong>
+                        <p style="margin-top: 0.25rem; color: var(--text-muted);">Explanation: Token IDs are clean elements belonging to the explicit integer set.</p>
+                    </div>
+                </div>
+
+                <div class="quiz-card">
+                    <div class="quiz-question">Question 2: p = 0.82. Decision threshold criteria verification mapping: p ≥ 0.5.</div>
+                    <div class="choices-container">
+                        <button class="choice-btn" onclick="selectTrainingChoice(2, 'Positive Class', this)">Positive Class</button>
+                        <button class="choice-btn" onclick="selectTrainingChoice(2, 'Negative Class', this)">Negative Class</button>
+                    </div>
+                    <button class="btn" style="background: #4A5568;" onclick="toggleAnswer(2)">Show Answer</button>
+                    <div class="answer-card hidden" id="ans2">
+                        <strong>Correct Answer: Positive Class</strong>
+                        <p style="margin-top: 0.25rem; color: var(--text-muted);">Explanation: Satisfies inequality constraints mapping to positive predictive outcomes.</p>
+                    </div>
+                </div>
+
+                <div class="quiz-card">
+                    <div class="quiz-question">Question 3: Risk = 0.90, Age = 65. Set combination result class?</div>
+                    <div class="choices-container">
+                        <button class="choice-btn" onclick="selectTrainingChoice(3, 'High Risk ∩ Age ≥ 60', this)">High Risk ∩ Age ≥ 60</button>
+                        <button class="choice-btn" onclick="selectTrainingChoice(3, 'Low Risk Set', this)">Low Risk Set</button>
+                    </div>
+                    <button class="btn" style="background: #4A5568;" onclick="toggleAnswer(3)">Show Answer</button>
+                    <div class="answer-card hidden" id="ans3">
+                        <strong>Correct Answer: High Risk ∩ Age ≥ 60</strong>
+                        <p style="margin-top: 0.25rem; color: var(--text-muted);">Explanation: Simultaneously falls within both targeted threshold boundaries.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section>
+            <h2 class="section-title">Practice Exercises</h2>
+            <div class="questions-grid">
+                
+                <div class="quiz-card">
+                    <div class="quiz-question">Exercise 1: Is 1000 an element of ℤ?</div>
+                    <div class="choices-container">
+                        <button class="choice-btn" onclick="submitPractice(1, 'YES', this)">YES</button>
+                        <button class="choice-btn" onclick="submitPractice(1, 'NO', this)">NO</button>
+                    </div>
+                    <div class="practice-feedback" id="pracFeedback1"></div>
+                </div>
+
+                <div class="quiz-card">
+                    <div class="quiz-question">Exercise 2: p = 0.25. Structural system classification?</div>
+                    <div class="choices-container">
+                        <button class="choice-btn" onclick="submitPractice(2, 'Positive Class', this)">Positive Class</button>
+                        <button class="choice-btn" onclick="submitPractice(2, 'Negative Class', this)">Negative Class</button>
+                    </div>
+                    <div class="practice-feedback" id="pracFeedback2"></div>
+                </div>
+
+                <div class="quiz-card">
+                    <div class="quiz-question">Exercise 3: Risk = 0.80, Age = 45. Target membership tier?</div>
+                    <div class="choices-container">
+                        <button class="choice-btn" onclick="submitPractice(3, 'Low Risk', this)">Low Risk</button>
+                        <button class="choice-btn" onclick="submitPractice(3, 'High Risk', this)">High Risk</button>
+                        <button class="choice-btn" onclick="submitPractice(3, 'Urgent Care', this)">Urgent Care</button>
+                    </div>
+                    <div class="practice-feedback" id="pracFeedback3"></div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="card" style="padding: 2.5rem 1.5rem; background: var(--book-midnight); border-top: 4px solid #A78BFA;">
+            <div style="margin-bottom: 2rem; text-align: center;">
+                <h2 style="font-size: 1.4rem; font-weight: 900; color: var(--gold-accent); margin-bottom: 0.3rem;">🧠 Next Word Prediction</h2>
+                <p style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">Transformer Execution Visualizer Demo</p>
+            </div>
+
+            <div class="transformer-container-grid">
+                <div class="box" id="inputBox">
+                    <b>Input Sequence</b>
+                    <div class="content-text">"I love"</div>
+                </div>
+
+                <div class="box" id="tokenBox">
+                    <b>Tokenized IDs</b>
+                    <div class="content-text" id="tokenBoxText">Pending...</div>
+                </div>
+
+                <div class="box" id="modelBox">
+                    <b>Transformer Core</b>
+                    <div class="content-text" id="modelBoxText">Awaiting Data...</div>
+                </div>
+
+                <div class="box" id="outputBox">
+                    <b>Predicted Output</b>
+                    <div class="content-text" id="outputBoxText">...</div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: center; margin-top: 2rem;">
+                <button class="btn" id="runBtn" style="background: linear-gradient(135deg, var(--gold-accent) 0%, #D9A000 100%); color: var(--book-dark); max-width: 300px;" onclick="runTransformerPipeline()">
+                    Predict Next Word
+                </button>
+            </div>
+        </section>
+        <section class="dashboard-grid">
+            <div class="scoring-summary-card">
+                <div>
+                    <h3 style="font-weight:900; font-size:1.1rem; margin-bottom:1rem; color:var(--book-dark);">Workbook Diagnostics</h3>
+                    <div class="metric-row">
+                        <span>Training Questions Viewed</span>
+                        <span id="metricViewed">0 / 3</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Practice Exercises Correct</span>
+                        <span id="metricCorrect">0 / 3</span>
+                    </div>
+                    <div class="metric-row">
+                        <span>Cumulative Task Score</span>
+                        <span id="metricTotal">0 / 6</span>
+                    </div>
+                </div>
+                
+                <div class="score-badge-container" style="margin-top: 1rem;">
+                    <div class="score-circle rank-review" id="scoreCircle">0%</div>
+                    <div>
+                        <div class="rating-text text-review" id="ratingText">Needs Review</div>
+                        <p style="font-size:0.75rem; color: var(--text-muted);">Calibrates system tier status rankings upon activity performance indicators.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; justify-content: center;">
+                <button class="btn" style="background: linear-gradient(135deg, var(--gold-accent) 0%, #D9A000 100%); color: var(--book-dark); padding: 1.25rem; font-size: 0.95rem;" onclick="generateCompletionCertificate()">
+                    Complete Lab Modules
+                </button>
+            </div>
+        </section>
+
+        <section id="certificateSection" class="hidden">
+            <div class="certificate-card">
+                <div class="certificate-title">Verification of Completion</div>
+                <p style="font-size: 1rem; color: var(--text-main); font-weight: 500;">This certifies the active operational finalization of workbook curriculum components for:</p>
+                
+                <div style="margin: 1.25rem 0; font-weight: 900; color: var(--book-dark); font-size: 1.25rem; letter-spacing: -0.01em;">
+                    Section 1.1: Sets of Numbers & Inequalities in AI
+                </div>
+
+                <div class="certificate-meta">
+                    <div>
+                        <span>Diagnostic Rank Score</span>
+                        <strong id="certScore">0%</strong>
+                    </div>
+                    <div>
+                        <span>Calculated Elapsed Duration</span>
+                        <strong id="certTime">00:00:00</strong>
+                    </div>
+                    <div style="grid-column: span 2; border-top: 1px solid #FEF3C7; padding-top: 0.5rem; margin-top: 0.2rem;">
+                        <span>System Date Stamped Verification</span>
+                        <strong id="certDate">-</strong>
+                    </div>
+                </div>
+                <p style="font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Deanship of Common First Year • King Saud University</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <h3>Differentiable Calculus with AI Applications</h3>
+        <p>Deanship of Common First Year – Basic Sciences Department</p>
+    </footer>
+
+    <script>
+        let totalSeconds = 0;
+        let timerInterval = null;
+        let labCompleted = false;
+
+        const activitiesState = {
+            ex1Validated: false,
+            ex2Validated: false,
+            ex3Validated: false,
+            q1Viewed: false,
+            q2Viewed: false,
+            q3Viewed: false,
+            p1Correct: false,
+            p2Correct: false,
+            p3Correct: false
         };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        const practiceAnswers = {
+            1: { correct: 'YES' },
+            2: { correct: 'Negative Class' },
+            3: { correct: 'High Risk' }
+        };
+
+        // Transformer Core Simulation Dataset 
+        const vocab = {
+            "I": 101,
+            "love": 2054,
+            "Saudi": 3001,
+            "Arabia": 3002
+        };
+        let transformerActive = false;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            timerInterval = setInterval(updateLiveTimer, 1000);
+            updateProgressAndScoring();
+        });
+
+        function updateLiveTimer() {
+            totalSeconds++;
+            const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+            const seconds = String(totalSeconds % 60).padStart(2, '0');
+            document.getElementById('liveTimer').innerText = `${hours}:${minutes}:${seconds}`;
+        }
+
+        function toggleLabFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function updateProgressAndScoring() {
+            const totalTasks = 9;
+            let finishedCount = 0;
+            for (let key in activitiesState) {
+                if (activitiesState[key] === true) finishedCount++;
+            }
+
+            const progressPercentage = Math.round((finishedCount / totalTasks) * 100);
+            document.getElementById('progressPercent').innerText = `${progressPercentage}%`;
+            document.getElementById('progressBar').style.width = `${progressPercentage}%`;
+
+            let viewedQuestions = 0;
+            if (activitiesState.q1Viewed) viewedQuestions++;
+            if (activitiesState.q2Viewed) viewedQuestions++;
+            if (activitiesState.q3Viewed) viewedQuestions++;
+
+            let correctPractice = 0;
+            if (activitiesState.p1Correct) correctPractice++;
+            if (activitiesState.p2Correct) correctPractice++;
+            if (activitiesState.p3Correct) correctPractice++;
+
+            const numericScore = viewedQuestions + correctPractice;
+            
+            document.getElementById('metricViewed').innerText = `${viewedQuestions} / 3`;
+            document.getElementById('metricCorrect').innerText = `${correctPractice} / 3`;
+            document.getElementById('metricTotal').innerText = `${numericScore} / 6`;
+
+            const scorePercentage = Math.round((numericScore / 6) * 100);
+            const scoreCircle = document.getElementById('scoreCircle');
+            const ratingText = document.getElementById('ratingText');
+
+            scoreCircle.innerText = `${scorePercentage}%`;
+            scoreCircle.className = "score-circle";
+            ratingText.className = "rating-text";
+
+            if (scorePercentage >= 90) {
+                scoreCircle.classList.add('rank-excellent');
+                ratingText.classList.add('text-excellent');
+                ratingText.innerText = "Excellent";
+            } else if (scorePercentage >= 80) {
+                scoreCircle.classList.add('rank-verygood');
+                ratingText.classList.add('text-verygood');
+                ratingText.innerText = "Very Good";
+            } else if (scorePercentage >= 70) {
+                scoreCircle.classList.add('rank-good');
+                ratingText.classList.add('text-good');
+                ratingText.innerText = "Good";
+            } else {
+                scoreCircle.classList.add('rank-review');
+                ratingText.classList.add('text-review');
+                ratingText.innerText = "Needs Review";
+            }
+        }
+
+        function validateExercise1() {
+            const val = document.getElementById('ex1Input').value;
+            const term = document.getElementById('ex1Terminal');
+            const num = Number(val);
+
+            if (val !== "" && Number.isInteger(num) && num >= 0) {
+                term.innerText = `SUCCESS: Token ${num} ∈ ℤ\nStatus: Valid Data Point`;
+                term.style.color = "#10B981";
+            } else {
+                term.innerText = `ERROR: Token ${val || 'Empty'} ∉ ℤ\nStatus: Invalid Index`;
+                term.style.color = "#EF4444";
+            }
+            activitiesState.ex1Validated = true;
+            updateProgressAndScoring();
+        }
+
+        function applyInequalityEx2() {
+            const val = parseFloat(document.getElementById('ex2Input').value);
+            const term = document.getElementById('ex2Terminal');
+            
+            if (isNaN(val)) {
+                term.innerText = "ERROR: Invalid Probability Format";
+                term.style.color = "#EF4444";
+                return;
+            }
+
+            if (val >= 0.5) {
+                term.innerText = `THRESHOLD: p = ${val} ≥ 0.5\nDECISION: POSITIVE CLASS`;
+                term.style.color = "#10B981";
+            } else {
+                term.innerText = `THRESHOLD: p = ${val} < 0.5\nDECISION: NEGATIVE CLASS`;
+                term.style.color = "#F4B400";
+            }
+            activitiesState.ex2Validated = true;
+            updateProgressAndScoring();
+        }
+
+        function runIntersectionEx3() {
+            const risk = parseFloat(document.getElementById('ex3Risk').value);
+            const age = parseFloat(document.getElementById('ex3Age').value);
+            const term = document.getElementById('ex3Terminal');
+
+            if (isNaN(risk) || isNaN(age)) {
+                term.innerText = "ERROR: Parameter checking data points missing";
+                term.style.color = "#EF4444";
+                return;
+            }
+
+            if (risk >= 0.7 && age >= 60) {
+                term.innerText = "SET INTERSECTION:\nHigh Risk ∩ Age ≥ 60\n\nACTION:\nURGENT MEDICAL CARE";
+                term.style.color = "#EF4444";
+            } else if (risk >= 0.7) {
+                term.innerText = "SET MEMBERSHIP:\nHigh Risk Set\n\nACTION:\nClinical Follow-up";
+                term.style.color = "#F4B400";
+            } else {
+                term.innerText = "SET MEMBERSHIP:\nLow Risk Set\n\nACTION:\nRoutine Monitor";
+                term.style.color = "#10B981";
+            }
+            activitiesState.ex3Validated = true;
+            updateProgressAndScoring();
+        }
+
+        function selectTrainingChoice(qId, choiceLabel, element) {
+            const container = element.closest('.choices-container');
+            const buttons = container.querySelectorAll('.choice-btn');
+            buttons.forEach(b => b.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            activitiesState[`q${qId}Viewed`] = true;
+            updateProgressAndScoring();
+        }
+
+        function toggleAnswer(qId) {
+            const panel = document.getElementById(`ans${qId}`);
+            panel.classList.toggle('hidden');
+            
+            activitiesState[`q${qId}Viewed`] = true;
+            updateProgressAndScoring();
+        }
+
+        function submitPractice(pId, optionValue, element) {
+            if (labCompleted) return;
+
+            const config = practiceAnswers[pId];
+            const container = element.closest('.choices-container');
+            const buttons = container.querySelectorAll('.choice-btn');
+            const feedbackPanel = document.getElementById(`pracFeedback${pId}`);
+
+            buttons.forEach(b => {
+                b.classList.remove('selected', 'correct-highlight', 'wrong-highlight');
+                b.disabled = true;
+            });
+
+            element.classList.add('selected');
+
+            if (optionValue === config.correct) {
+                element.classList.add('correct-highlight');
+                feedbackPanel.innerHTML = `<span class="feedback-correct">✓ Correct</span>`;
+                activitiesState[`p${pId}Correct`] = true;
+            } else {
+                element.classList.add('wrong-highlight');
+                feedbackPanel.innerHTML = `<span class="feedback-wrong">✗ Try Again</span>`;
+                activitiesState[`p${pId}Correct`] = false;
+                
+                setTimeout(() => {
+                    buttons.forEach(b => b.disabled = false);
+                }, 1000);
+            }
+            updateProgressAndScoring();
+        }
+
+        // ==========================================
+        //  TRANSFORMER WORKFLOW ENGINE FUNCTIONS
+        // ==========================================
+        function getElementCenter(el) {
+            const r = el.getBoundingClientRect();
+            return {
+                x: r.left + window.scrollX + r.width / 2 - 32.5,
+                y: r.top + window.scrollY + r.height / 2 - 32.5
+            };
+        }
+
+        function createFloatingToken(text, x, y) {
+            const t = document.createElement("div");
+            t.className = "token";
+            t.innerText = text;
+            t.style.left = x + "px";
+            t.style.top = y + "px";
+            document.body.appendChild(t);
+            return t;
+        }
+
+        function moveToken(t, x, y) {
+            t.style.left = x + "px";
+            t.style.top = y + "px";
+        }
+
+        function runTransformerPipeline() {
+            if (transformerActive) return;
+            transformerActive = true;
+            
+            const runBtn = document.getElementById("runBtn");
+            runBtn.disabled = true;
+
+            document.getElementById("tokenBoxText").innerText = "Processing...";
+            document.getElementById("modelBoxText").innerText = "Predicting...";
+            document.getElementById("outputBoxText").innerText = "...";
+            
+            document.querySelectorAll('.token').forEach(el => el.remove());
+
+            const inputBox = document.getElementById("inputBox");
+            const tokenBox = document.getElementById("tokenBox");
+            const modelBox = document.getElementById("modelBox");
+            const outputBox = document.getElementById("outputBox");
+
+            const inputWords = ["I", "love"];
+            const runtimeTokensArray = [];
+
+            // Context Mapping Phase
+            inputWords.forEach((w, i) => {
+                const startCoords = getElementCenter(inputBox);
+                const tokenElement = createFloatingToken(w, startCoords.x + (i * 30) - 15, startCoords.y);
+
+                setTimeout(() => {
+                    tokenElement.innerText = vocab[w];
+                    const targetCoords = getElementCenter(tokenBox);
+                    moveToken(tokenElement, targetCoords.x + (i * 45) - 22, targetCoords.y);
+                    
+                    if(i === inputWords.length - 1) {
+                        setTimeout(() => {
+                            document.getElementById("tokenBoxText").innerHTML = "[101, 2054]";
+                        }, 800);
+                    }
+                }, 600 + (i * 200));
+
+                runtimeTokensArray.push(tokenElement);
+            });
+
+            // Latent Computing Model Phase
+            setTimeout(() => {
+                modelBox.classList.add("glow");
+                document.getElementById("modelBoxText").innerText = "⚙️ Attention Computing";
+
+                runtimeTokensArray.forEach((t, i) => {
+                    const targetCoords = getElementCenter(modelBox);
+                    moveToken(t, targetCoords.x + (i * 30) - 15, targetCoords.y - 15);
+                });
+            }, 1800);
+
+            // Prediction Layer Generation Phase
+            let generatedTokensArray = [];
+            setTimeout(() => {
+                document.getElementById("modelBoxText").innerText = "Logits Decoded";
+                const predictedWords = ["Saudi", "Arabia"];
+
+                predictedWords.forEach((w, i) => {
+                    const startCoords = getElementCenter(modelBox);
+                    const tokenElement = createFloatingToken(vocab[w], startCoords.x + (i * 30) - 15, startCoords.y + 40);
+                    
+                    tokenElement.style.background = "var(--token-bg-done)";
+                    tokenElement.style.color = "white";
+                    tokenElement.style.boxShadow = "0 0 20px rgba(16, 185, 129, 0.4)";
+
+                    setTimeout(() => {
+                        const targetCoords = getElementCenter(outputBox);
+                        tokenElement.innerText = w;
+                        moveToken(tokenElement, targetCoords.x + (i * 65) - 32, targetCoords.y);
+                    }, 800 + (i * 300));
+
+                    generatedTokensArray.push(tokenElement);
+                });
+            }, 3200);
+
+            // Serialization Output Phase
+            setTimeout(() => {
+                modelBox.classList.remove("glow");
+                outputBox.classList.add("glow-output");
+
+                document.getElementById("outputBoxText").innerHTML = "<span style='color:var(--gold-accent);'>I love Saudi Arabia</span>";
+
+                runtimeTokensArray.forEach(t => t.style.opacity = "0");
+                generatedTokensArray.forEach(t => t.style.opacity = "0");
+
+                setTimeout(() => {
+                    outputBox.classList.remove("glow-output");
+                    transformerActive = false;
+                    runBtn.disabled = false;
+                }, 1500);
+
+            }, 5600);
+        }
+
+        function generateCompletionCertificate() {
+            if (labCompleted) return;
+
+            clearInterval(timerInterval);
+            labCompleted = true;
+
+            const finalTimerText = document.getElementById('liveTimer').innerText;
+            const currentTotalScoreString = document.getElementById('metricTotal').innerText.split(' ')[0];
+            const totalTasksParts = currentTotalScoreString.split('/');
+            const scorePercentage = Math.round((parseInt(totalTasksParts[0]) / 6) * 100);
+
+            document.getElementById('certScore').innerText = `${scorePercentage}% (${currentTotalScoreString})`;
+            document.getElementById('certTime').innerText = finalTimerText;
+            
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('certDate').innerText = today.toLocaleDateString('en-US', options);
+
+            const certSection = document.getElementById('certificateSection');
+            certSection.classList.remove('hidden');
+            certSection.scrollIntoView({ behavior: 'smooth' });
+        }
     </script>
 </body>
 </html>
